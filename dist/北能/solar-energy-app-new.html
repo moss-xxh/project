@@ -1408,12 +1408,15 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <div style="display: flex; align-items: center; flex: 1; gap: 8px;">
                                 <div style="font-weight: 600; font-size: 17px; color: #1d1d1f;">${device.name}</div>
-                                <div onclick="event.stopPropagation(); goToNetworkConfig()" style="color: ${device.networkConfigured ? '#2e7d0d' : '#d97706'}; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                <div onclick="event.stopPropagation(); goToNetworkConfig()" style="color: ${device.networkConfigured ? '#2e7d0d' : '#fff'}; background-color: ${device.networkConfigured ? 'rgba(46, 125, 13, 0.1)' : '#d97706'}; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; padding: 4px 8px; border-radius: 6px;" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
                                     ${device.networkConfigured ? '已配网' : '未配网'}>
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <div style="color: ${device.online ? '#30d158' : '#86868b'}; font-size: 13px; font-weight: 600;">● ${device.online ? '在线' : '离线'}</div>
+                                <button onclick="event.stopPropagation(); openDeviceDetail('${device.name}', '${device.sn}', ${device.online})" style="background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease; font-size: 16px;" onmouseover="this.style.background='rgba(0, 122, 255, 0.1)'" onmouseout="this.style.background='none'" title="查看详情">
+                                    ➡️
+                                </button>
                                 <button onclick="event.stopPropagation(); showDeleteConfirmation('${device.id}', '${device.name}', ${index})" style="background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(255, 59, 48, 0.1)'" onmouseout="this.style.background='none'">
                                     <svg width="16" height="16" fill="#ff3b30" viewBox="0 0 24 24">
                                         <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -1421,18 +1424,29 @@
                                 </button>
                             </div>
                         </div>
-                        <div style="background: rgba(0, 0, 0, 0.02); border-radius: 12px; padding: 16px; display: flex; justify-content: space-around;">
-                            <div style="text-align: center;">
-                                <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">状态</div>
-                                <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.status}</div>
+                        <div style="background: rgba(0, 0, 0, 0.02); border-radius: 12px; padding: 16px;">
+                            <div style="display: flex; justify-content: space-around; margin-bottom: 16px;">
+                                <div style="text-align: center;">
+                                    <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">状态</div>
+                                    <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.status}</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">SOC</div>
+                                    <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.soc}%</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">SOH</div>
+                                    <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.soh}%</div>
+                                </div>
                             </div>
-                            <div style="text-align: center;">
-                                <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">SOC</div>
-                                <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.soc}%</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="color: #86868b; font-size: 11px; margin-bottom: 6px; letter-spacing: 0.2px;">SOH</div>
-                                <div style="color: #1d1d1f; font-size: 16px; font-weight: 600;">${device.soh}%</div>
+                            <div style="border-top: 1px solid rgba(0, 0, 0, 0.08); padding-top: 12px; display: flex; justify-content: flex-end;">
+                                <button onclick="event.stopPropagation(); openDeviceDetail('${device.name}', '${device.sn}', ${device.online})" style="background: none; border: none; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; border-radius: 8px; transition: all 0.2s ease; color: #007AFF; font-size: 14px; font-weight: 500;" onmouseover="this.style.background='rgba(0, 122, 255, 0.08)'" onmouseout="this.style.background='none'">
+                                    <span>详情</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M5 12h14"/>
+                                        <path d="M12 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>

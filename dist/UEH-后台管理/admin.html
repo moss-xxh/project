@@ -729,8 +729,15 @@
             }
         };
 
-        // 当前语言 - 从localStorage读取，默认为英文
-        let currentLang = localStorage.getItem('language') || 'en';
+        // 当前语言 - 强制默认为英文，忽略localStorage
+        let currentLang = 'en';
+        // 立即清除任何语言设置，确保始终使用英文
+        try {
+            localStorage.clear(); // 清除所有localStorage数据
+            console.log('localStorage cleared to ensure English language');
+        } catch (e) {
+            console.log('Cannot clear localStorage:', e);
+        }
 
         // 模拟数据
         let mockData = [];
@@ -738,9 +745,8 @@
         // 生成模拟数据
         function generateMockData() {
             const brands = ['ipotisedge', 'FOX ESS', 'weiheng'];
-            const cities = currentLang === 'zh' 
-                ? ['悉尼, 新南威尔士州', '墨尔本, 维多利亚州', '布里斯班, 昆士兰州', '珀斯, 西澳大利亚州'] 
-                : ['Sydney, NSW', 'Melbourne, VIC', 'Brisbane, QLD', 'Perth, WA'];
+            // 强制使用英文城市名称
+            const cities = ['Sydney, NSW', 'Melbourne, VIC', 'Brisbane, QLD', 'Perth, WA'];
             
             mockData = [];
             const today = new Date();
@@ -778,7 +784,7 @@
                     sn: `SN2024${Math.floor(Math.random() * 10000)}`,
                     address: cities[Math.floor(Math.random() * cities.length)],
                     meter: Math.floor(Math.random() * 100000000).toString(),
-                    submitTime: date.toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US'),
+                    submitTime: date.toLocaleString('en-US'),
                     status: status,
                     remarkType: remarkType,
                     isExited: false
@@ -796,8 +802,8 @@
         function init() {
             try {
                 console.log('Initializing admin page...');
-                // 应用保存的语言设置
-                changeLanguage(currentLang);
+                // 应用默认语言设置（不保存到localStorage）
+                changeLanguage(currentLang, false);
                 console.log('Language changed');
                 generateMockData();
                 console.log('Mock data generated:', mockData.length, 'items');
@@ -823,9 +829,8 @@
         function generateExitedUsers() {
             // 如果localStorage中没有退出用户，添加2条测试数据
             if (exitedUsers.length === 0) {
-                const cities = currentLang === 'zh' 
-                    ? ['悉尼, 新南威尔士州', '墨尔本, 维多利亚州'] 
-                    : ['Sydney, NSW', 'Melbourne, VIC'];
+                // 强制使用英文城市名称
+                const cities = ['Sydney, NSW', 'Melbourne, VIC'];
                 
                 exitedUsers = [
                     {
@@ -835,11 +840,11 @@
                         sn: 'SN2024001',
                         address: cities[0],
                         meter: '12345678',
-                        submitTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US'),
+                        submitTime: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleString('en-US'),
                         status: 'active',
                         remarkType: '',
                         isExited: true,
-                        exitTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US')
+                        exitTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toLocaleString('en-US')
                     },
                     {
                         id: 1002,
@@ -848,11 +853,11 @@
                         sn: 'SN2024002',
                         address: cities[1],
                         meter: '87654321',
-                        submitTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US'),
+                        submitTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toLocaleString('en-US'),
                         status: 'active',
                         remarkType: '',
                         isExited: true,
-                        exitTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US')
+                        exitTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toLocaleString('en-US')
                     }
                 ];
                 localStorage.setItem('exitedVPPUsers', JSON.stringify(exitedUsers));
@@ -1000,7 +1005,8 @@
             
             
             // 账号筛选
-            const accountTerm = document.getElementById('account-input').value.toLowerCase();
+            const accountInputElement = document.getElementById('account-input');
+            const accountTerm = accountInputElement ? accountInputElement.value.toLowerCase() : '';
             if (accountTerm) {
                 data = data.filter(item => 
                     item.account.toLowerCase().includes(accountTerm)
@@ -1016,13 +1022,15 @@
             }
             
             // 品牌筛选
-            const brandFilter = document.getElementById('brand-filter').value;
+            const brandFilterElement = document.getElementById('brand-filter');
+            const brandFilter = brandFilterElement ? brandFilterElement.value : '';
             if (brandFilter) {
                 data = data.filter(item => item.brand === brandFilter);
             }
             
             // 电表号筛选
-            const meterTerm = document.getElementById('meter-input').value.toLowerCase();
+            const meterInputElement = document.getElementById('meter-input');
+            const meterTerm = meterInputElement ? meterInputElement.value.toLowerCase() : '';
             if (meterTerm) {
                 data = data.filter(item => 
                     item.meter.toLowerCase().includes(meterTerm)
@@ -1030,7 +1038,8 @@
             }
             
             // 时间筛选
-            const dateFilter = document.getElementById('date-filter').value;
+            const dateFilterElement = document.getElementById('date-filter');
+            const dateFilter = dateFilterElement ? dateFilterElement.value : '';
             if (dateFilter) {
                 const selectedDate = new Date(dateFilter);
                 data = data.filter(item => {
@@ -1154,7 +1163,7 @@
             const deviceIndex = mockData.findIndex(d => d.id == deviceId);
             if (deviceIndex !== -1) {
                 const exitedDevice = mockData[deviceIndex];
-                exitedDevice.exitTime = new Date().toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+                exitedDevice.exitTime = new Date().toLocaleString('en-US');
                 
                 // 添加到退出用户列表
                 exitedUsers.push(exitedDevice);
@@ -1204,9 +1213,11 @@
 
 
         // 语言切换
-        function changeLanguage(lang) {
+        function changeLanguage(lang, saveToStorage = true) {
             currentLang = lang;
-            localStorage.setItem('language', lang); // 保存到localStorage
+            if (saveToStorage) {
+                localStorage.setItem('language', lang); // 保存到localStorage
+            }
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang][key]) {
@@ -1274,7 +1285,8 @@
                 document.getElementById('sn-input').value = '';
                 document.getElementById('meter-input').value = '';
                 document.getElementById('brand-filter').value = '';
-                document.getElementById('date-filter').value = '';
+                const dateFilterElement = document.getElementById('date-filter');
+                if (dateFilterElement) dateFilterElement.value = '';
                 currentPage = 1;
                 renderTable();
             });
@@ -1301,10 +1313,13 @@
                 renderTable();
             });
             
-            document.getElementById('date-filter').addEventListener('change', function() {
-                currentPage = 1;
-                renderTable();
-            });
+            const dateFilterListener = document.getElementById('date-filter');
+            if (dateFilterListener) {
+                dateFilterListener.addEventListener('change', function() {
+                    currentPage = 1;
+                    renderTable();
+                });
+            }
             
             // 分页
             document.getElementById('prev-page').addEventListener('click', function() {
@@ -1498,7 +1513,7 @@
             const deviceIndex = mockData.findIndex(d => d.id === deviceId);
             if (deviceIndex !== -1) {
                 const rejectedDevice = {...mockData[deviceIndex]};
-                rejectedDevice.rejectedTime = new Date().toLocaleString(currentLang === 'zh' ? 'zh-CN' : 'en-US');
+                rejectedDevice.rejectedTime = new Date().toLocaleString('en-US');
                 rejectedDevice.rejectionReason = reason;
                 rejectedDevice.isRejected = true;
                 
