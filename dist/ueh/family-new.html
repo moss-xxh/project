@@ -38,6 +38,172 @@
             min-height: calc(100vh - 200px);
         }
         
+        /* Multi-level Device Status Filter Styles */
+        .device-status-filter-container {
+            position: relative;
+            display: inline-block;
+            min-width: 160px;
+        }
+        
+        .filter-dropdown {
+            position: relative;
+        }
+        
+        .filter-dropdown-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            color: var(--color-text);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-dropdown-btn:hover {
+            border-color: var(--color-primary);
+            background: var(--color-bg-hover);
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .filter-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .filter-dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            margin-top: 2px;
+        }
+        
+        .filter-dropdown.open .filter-dropdown-content {
+            display: block;
+        }
+        
+        .filter-option {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .filter-option:last-child {
+            border-bottom: none;
+        }
+        
+        .filter-checkbox-label {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+        
+        .filter-checkbox-label:hover {
+            background: var(--color-bg-hover);
+        }
+        
+        .filter-checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            accent-color: var(--color-primary);
+        }
+        
+        .expand-arrow {
+            margin-left: auto;
+            cursor: pointer;
+            padding: 0 4px;
+            transition: transform 0.3s ease;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+        
+        .expand-arrow:hover {
+            color: var(--color-primary);
+        }
+        
+        .expand-arrow.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .sub-options {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .sub-option-label {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px 8px 30px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 13px;
+        }
+        
+        .sub-option-label:hover {
+            background: var(--color-bg-hover);
+        }
+        
+        .sub-option-label input[type="checkbox"] {
+            margin-right: 8px;
+            accent-color: var(--color-primary);
+        }
+
+        /* Flow Direction Indicator Styles */
+        .flow-indicator {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0 2px;
+            text-shadow: 0 0 4px currentColor;
+        }
+        
+        .flow-indicator.active {
+            color: #00ff88;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+        
+        .flow-indicator.inactive {
+            color: #888;
+        }
+        
+        .flow-indicator.offline {
+            color: #ff4757;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+                text-shadow: 0 0 4px currentColor;
+            }
+            100% {
+                opacity: 1;
+                text-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+            }
+        }
+        
+        .flow-direction {
+            font-size: 12px;
+            line-height: 1.3;
+            white-space: normal;
+            max-width: 120px;
+        }
+
         /* Fixed Header Area */
         .fixed-header {
             position: sticky;
@@ -547,6 +713,14 @@
             background: currentColor;
         }
 
+        /* Flow Direction Styles */
+        .flow-direction {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
         /* Action Buttons */
         .action-buttons {
             display: flex;
@@ -815,6 +989,27 @@
             line-height: 1.4;
         }
 
+        /* Category Sections - Minimal Design */
+        .drawer-category-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .drawer-category-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .drawer-category-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         /* Fixed Action Buttons at Bottom of Drawer */
         .drawer-actions {
             position: absolute;
@@ -1069,20 +1264,20 @@
                     
                     <input type="text" class="search-input" id="meterInput" data-i18n-placeholder="family.placeholder.meterNumber" placeholder="请输入电表编号..." onkeyup="handleMeterSearch(this.value)">
                     
-                    <select class="filter-select" id="activityFilter" onchange="handleActivityFilter(this.value)">
-                        <option value="" data-i18n-key="family.placeholder.allActivity">所有活跃度</option>
-                        <option value="active" data-i18n-key="family.activityStatus.active">活跃</option>
-                        <option value="inactive" data-i18n-key="family.activityStatus.inactive">非活跃</option>
-                    </select>
-                    
                     <input type="text" class="search-input" id="deviceCodeInput" data-i18n-placeholder="family.placeholder.deviceCode" placeholder="请输入设备编码..." onkeyup="handleDeviceCodeSearch(this.value)">
                     
+                    <!-- Device Status Filter -->
                     <select class="filter-select" id="deviceStatusFilter" onchange="handleDeviceStatusFilter(this.value)">
                         <option value="" data-i18n-key="family.placeholder.deviceStatus">所有设备状态</option>
-                        <option value="charging" data-i18n-key="family.deviceStates.charging">充电</option>
-                        <option value="discharging" data-i18n-key="family.deviceStates.discharging">放电</option>
-                        <option value="standby" data-i18n-key="family.deviceStates.standby">待机</option>
-                        <option value="offline" data-i18n-key="family.deviceStates.offline">离线</option>
+                        <optgroup label="显示状态">
+                            <option value="charging" data-i18n-key="family.deviceStates.charging">充电中</option>
+                            <option value="discharging" data-i18n-key="family.deviceStates.discharging">放电中</option>
+                            <option value="standby" data-i18n-key="family.deviceStates.standby">待机</option>
+                            <option value="offline" data-i18n-key="family.deviceStates.offline">离线</option>
+                        </optgroup>
+                        <optgroup label="━━━━━━━━━━">
+                            <option value="missingBattery" data-i18n-key="family.deviceStates.missingBattery">无电池</option>
+                        </optgroup>
                     </select>
                     
                     <div class="filter-actions">
@@ -1125,7 +1320,14 @@
                         <thead>
                             <tr>
                                 <th data-i18n-key="family.table.user">用户</th>
-                                <th data-i18n-key="family.table.activity">活跃度</th>
+                                <th data-i18n-key="family.table.meterNumber">表号</th>
+                                <th>
+                                    <span data-i18n-key="family.table.yesterdayProfit">昨日获利 ($)</span>
+                                    <span class="sort-buttons">
+                                        <button class="sort-btn sort-asc" onclick="sortTable('yesterdayProfit', 'asc', this)" title="升序">▲</button>
+                                        <button class="sort-btn sort-desc" onclick="sortTable('yesterdayProfit', 'desc', this)" title="降序">▼</button>
+                                    </span>
+                                </th>
                                 <th>
                                     <span data-i18n-key="family.table.todayProfit">今日获利 ($)</span>
                                     <span class="sort-buttons">
@@ -1138,13 +1340,6 @@
                                     <span class="sort-buttons">
                                         <button class="sort-btn sort-asc" onclick="sortTable('totalProfit', 'asc', this)" title="升序">▲</button>
                                         <button class="sort-btn sort-desc" onclick="sortTable('totalProfit', 'desc', this)" title="降序">▼</button>
-                                    </span>
-                                </th>
-                                <th>
-                                    <span data-i18n-key="family.table.avgProfit">日均获利 ($)</span>
-                                    <span class="sort-buttons">
-                                        <button class="sort-btn sort-asc" onclick="sortTable('avgProfit', 'asc', this)" title="升序">▲</button>
-                                        <button class="sort-btn sort-desc" onclick="sortTable('avgProfit', 'desc', this)" title="降序">▼</button>
                                     </span>
                                 </th>
                                 <th data-i18n-key="family.table.deviceCode">设备编码</th>
@@ -1168,15 +1363,6 @@
                                     <span class="sort-buttons">
                                         <button class="sort-btn sort-asc" onclick="sortTable('batteryCost', 'asc', this)" title="升序">▲</button>
                                         <button class="sort-btn sort-desc" onclick="sortTable('batteryCost', 'desc', this)" title="降序">▼</button>
-                                    </span>
-                                </th>
-                                <th data-i18n-key="family.table.meterNumber">表号</th>
-                                <th data-i18n-key="family.table.location">地址</th>
-                                <th>
-                                    <span data-i18n-key="family.table.usageDays">使用天数 (天)</span>
-                                    <span class="sort-buttons">
-                                        <button class="sort-btn sort-asc" onclick="sortTable('usageDays', 'asc', this)" title="升序">▲</button>
-                                        <button class="sort-btn sort-desc" onclick="sortTable('usageDays', 'desc', this)" title="降序">▼</button>
                                     </span>
                                 </th>
                                 <th data-i18n-key="family.table.action" class="fixed-action-column">操作</th>
@@ -1217,6 +1403,20 @@
             <div class="drawer-actions">
                 <button class="drawer-action-btn" onclick="closeFamilyDrawer()" data-i18n-key="family.drawer.actions.cancel">取消</button>
                 <button class="drawer-action-btn primary" onclick="confirmFamilyDetails()" data-i18n-key="family.drawer.actions.confirm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discharge Data Drawer -->
+    <div class="drawer-overlay" id="dischargeDrawer" onclick="handleDrawerOverlayClick(event)">
+        <div class="drawer-container" onclick="event.stopPropagation()">
+            <div class="drawer-header">
+                <h3 class="drawer-title" id="dischargeDrawerTitle">放电数据</h3>
+                <button class="drawer-close" onclick="closeDischargeDrawer()">✕</button>
+            </div>
+            
+            <div class="drawer-content" id="dischargeDrawerContent">
+                <!-- Discharge data content will be dynamically populated -->
             </div>
         </div>
     </div>
@@ -1351,6 +1551,21 @@
                     deviceStatus = 'discharging';
                 }
                 
+                // Add battery missing flag for specific devices
+                const batteryMissing = [2, 7, 15, 23, 31, 42].includes(i + 1);
+                
+                // Add charging source for charging devices
+                let chargingSource = null;
+                if (deviceStatus === 'charging') {
+                    chargingSource = Math.random() > 0.5 ? 'grid' : 'solar';
+                }
+                
+                // Add discharging destination for discharging devices
+                let dischargingDestination = null;
+                if (deviceStatus === 'discharging') {
+                    dischargingDestination = Math.random() > 0.5 ? 'load' : 'grid';
+                }
+                
                 data.push({
                     id: i + 1,
                     name: names[i % names.length],
@@ -1360,12 +1575,16 @@
                     status: status,
                     soc: isActive ? Math.floor(Math.random() * 40 + 60) : Math.floor(Math.random() * 50),
                     todayDischarge: isActive ? (Math.random() * 50 + 10).toFixed(1) : 0,
+                    yesterdayProfit: isActive ? (Math.random() * 18 + 3).toFixed(1) : 0,
                     todayProfit: isActive ? (Math.random() * 20 + 5).toFixed(1) : 0,
                     totalProfit: (Math.random() * 500 + 100).toFixed(1),
                     avgProfit: (Math.random() * 15 + 3).toFixed(1),
                     deviceCode: `DEVICE${String(i + 1).padStart(3, '0')}`,
                     deviceStatus: deviceStatus,
-                    usageDays: Math.floor(Math.random() * 300 + 30)
+                    chargingSource: chargingSource,
+                    dischargingDestination: dischargingDestination,
+                    usageDays: Math.floor(Math.random() * 300 + 30),
+                    batteryMissing: batteryMissing
                 });
             }
             
@@ -1385,9 +1604,11 @@
         
         // Generate data immediately
         window.familyData = generateFamilyData();
+        console.log('Generated family data:', window.familyData.length, 'items');
         let currentPage = 1;
         let pageSize = 20;
         window.filteredData = [...window.familyData];
+        console.log('Filtered data initialized:', window.filteredData.length, 'items');
         let pagination = null;
         
         // Ensure data loads even if other methods fail
@@ -1546,6 +1767,53 @@
             }, 1000);
         });
 
+        // Get flow direction based on device status and actual data
+        function getFlowDirection(family) {
+            try {
+                const lang = window.i18n ? (window.i18n.currentLanguage || 'zh') : 'zh';
+                const isEnglish = lang === 'en';
+            
+            if (family.deviceStatus === 'discharging') {
+                // Show both destinations, highlight the active one
+                const loadIndicator = family.dischargingDestination === 'load' ? 
+                    '<span class="flow-indicator active">●</span>' : 
+                    '<span class="flow-indicator inactive">●</span>';
+                const gridIndicator = family.dischargingDestination === 'grid' ? 
+                    '<span class="flow-indicator active">●</span>' : 
+                    '<span class="flow-indicator inactive">●</span>';
+                
+                return isEnglish ? 
+                    `${loadIndicator}Battery→Load<br>${gridIndicator}Battery→Grid` : 
+                    `${loadIndicator}电池→负载<br>${gridIndicator}电池→电网`;
+                    
+            } else if (family.deviceStatus === 'charging') {
+                // Show both sources, highlight the active one
+                const solarIndicator = family.chargingSource === 'solar' ? 
+                    '<span class="flow-indicator active">●</span>' : 
+                    '<span class="flow-indicator inactive">●</span>';
+                const gridIndicator = family.chargingSource === 'grid' ? 
+                    '<span class="flow-indicator active">●</span>' : 
+                    '<span class="flow-indicator inactive">●</span>';
+                
+                return isEnglish ? 
+                    `${solarIndicator}Solar→Battery<br>${gridIndicator}Grid→Battery` : 
+                    `${solarIndicator}光伏→电池<br>${gridIndicator}电网→电池`;
+                    
+            } else if (family.deviceStatus === 'standby') {
+                return isEnglish ? 
+                    '<span class="flow-indicator inactive">●</span>Standby' : 
+                    '<span class="flow-indicator inactive">●</span>待机';
+            } else {
+                return isEnglish ? 
+                    '<span class="flow-indicator offline">●</span>Offline' : 
+                    '<span class="flow-indicator offline">●</span>离线';
+            }
+            } catch (error) {
+                console.error('Error in getFlowDirection:', error);
+                return '---';
+            }
+        }
+
         // Create family table row
         function createFamilyTableRow(family) {
             const row = document.createElement('tr');
@@ -1566,28 +1834,27 @@
 
             row.innerHTML = `
                 <td>${window.i18n ? window.i18n.getText(family.nameKey) : family.name}</td>
-                <td>
-                    <span class="status-badge ${statusClass}">
-                        <span class="status-indicator"></span>
-                        ${statusText}
-                    </span>
-                </td>
-                <td>$${family.todayProfit}</td>
+                <td>${family.meterNumber}</td>
+                <td style="cursor: pointer; color: var(--color-primary);" onclick="openDischargeDrawer('${family.id}', 'yesterday')">$${family.yesterdayProfit}</td>
+                <td style="cursor: pointer; color: var(--color-primary);" onclick="openDischargeDrawer('${family.id}', 'today')">$${family.todayProfit}</td>
                 <td>$${family.totalProfit || Math.floor(family.todayProfit * 30)}</td>
-                <td>$${family.avgProfit || Math.floor(family.todayProfit * 0.8)}</td>
                 <td>${family.deviceCode}</td>
                 <td>
-                    <span class="status-badge ${deviceStatusClass}">
-                        <span class="status-indicator"></span>
-                        ${deviceStatusText}
+                    ${family.deviceStatus === 'charging' || family.deviceStatus === 'discharging' ? '' : `
+                        <span class="status-badge ${deviceStatusClass}">
+                            <span class="status-indicator"></span>
+                            ${deviceStatusText}
+                        </span>
+                        <br>
+                    `}
+                    <span class="flow-direction">
+                        ${getFlowDirection(family)}
                     </span>
+                    ${family.batteryMissing ? ` <span style="color: #ff4757; font-size: 11px; font-weight: 600;">⚠ ${window.i18n ? window.i18n.getText('family.drawer.batteryMissing') : '缺少电池'}</span>` : ''}
                 </td>
                 <td>${family.soc}%</td>
                 <td>$${(family.soc * 15).toFixed(2)}</td>
                 <td>$${(family.soc * 0.5).toFixed(2)}</td>
-                <td>${family.meterNumber}</td>
-                <td>${family.location}</td>
-                <td>${family.usageDays}</td>
                 <td class="fixed-action-column">
                     <div class="action-buttons">
                         <button class="action-btn edit" onclick="viewFamilyDetails(${family.id})">
@@ -1638,16 +1905,15 @@
                 );
             }
             
-            // Apply activity filter
-            const activityFilter = document.getElementById('activityFilter').value;
-            if (activityFilter) {
-                window.filteredData = window.filteredData.filter(family => family.status === activityFilter);
-            }
             
             // Apply device status filter
-            const deviceStatusFilter = document.getElementById('deviceStatusFilter').value;
-            if (deviceStatusFilter) {
-                window.filteredData = window.filteredData.filter(family => family.deviceStatus === deviceStatusFilter);
+            const deviceStatusValue = document.getElementById('deviceStatusFilter').value;
+            if (deviceStatusValue) {
+                if (deviceStatusValue === 'missingBattery') {
+                    window.filteredData = window.filteredData.filter(family => family.batteryMissing === true);
+                } else {
+                    window.filteredData = window.filteredData.filter(family => family.deviceStatus === deviceStatusValue);
+                }
             }
 
             // Update pagination
@@ -1666,7 +1932,7 @@
             if (pageData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="12" style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
+                        <td colspan="15" style="text-align: center; padding: 40px; color: var(--color-text-secondary);">
                             ${window.i18n ? window.i18n.getText('noData') : '暂无数据'}
                         </td>
                     </tr>
@@ -1726,6 +1992,181 @@
             closeFamilyDrawer();
         }
 
+        // Test function to show drawer without data dependencies
+        function testShowDrawer() {
+            console.log('Testing drawer display...');
+            const drawer = document.getElementById('dischargeDrawer');
+            if (drawer) {
+                drawer.classList.add('show');
+                console.log('Test drawer shown successfully');
+            } else {
+                console.error('Drawer element not found');
+            }
+        }
+        
+        // Open discharge data drawer
+        function openDischargeDrawer(familyId, period) {
+            console.log('openDischargeDrawer called with:', familyId, period);
+            console.log('familyData:', familyData);
+            
+            const family = familyData.find(f => f.id == familyId);
+            if (!family) {
+                console.error('Family not found with ID:', familyId);
+                return;
+            }
+            console.log('Found family:', family);
+            
+            const drawer = document.getElementById('dischargeDrawer');
+            const title = document.getElementById('dischargeDrawerTitle');
+            const content = document.getElementById('dischargeDrawerContent');
+            
+            console.log('Drawer elements:', { drawer, title, content });
+            
+            if (!drawer) {
+                console.error('dischargeDrawer element not found!');
+                return;
+            }
+            
+            // Set title based on period and language
+            console.log('Current i18n state:', window.i18n);
+            console.log('Current language:', window.i18n ? window.i18n.currentLanguage : 'no i18n');
+            
+            // Get current language
+            const currentLang = window.i18n ? window.i18n.currentLanguage : 'zh';
+            
+            // Get specific date based on period
+            const today = new Date();
+            const targetDate = period === 'yesterday' ? 
+                new Date(today.getTime() - 24 * 60 * 60 * 1000) : today;
+            
+            const periodText = targetDate.getFullYear() + '/' + 
+                String(targetDate.getMonth() + 1).padStart(2, '0') + '/' + 
+                String(targetDate.getDate()).padStart(2, '0');
+            const userName = window.i18n ? window.i18n.getText(family.nameKey) : family.name;
+            
+            console.log('Period text:', periodText);
+            console.log('User name:', userName);
+            
+            title.textContent = `${userName}——${periodText}`;
+            
+            // Generate discharge data for the period
+            const dischargeData = generateDischargeData(period);
+            
+            // Populate content
+            loadDischargeContent(content, dischargeData, period);
+            
+            // Show drawer
+            console.log('Showing discharge drawer...');
+            drawer.classList.add('show');
+            console.log('Drawer classes after adding show:', drawer.classList.toString());
+        }
+
+        // Close discharge drawer
+        function closeDischargeDrawer() {
+            document.getElementById('dischargeDrawer').classList.remove('show');
+        }
+
+        // Handle drawer overlay click (close on mask click)
+        function handleDrawerOverlayClick(event) {
+            // Only close if clicked on the overlay itself, not on the drawer content
+            if (event.target === event.currentTarget) {
+                closeDischargeDrawer();
+            }
+        }
+
+        // Generate discharge data for 5-minute intervals
+        function generateDischargeData(period) {
+            const data = [];
+            const intervals = 288; // 24 hours * 12 (5-minute intervals per hour)
+            
+            for (let i = 0; i < intervals; i++) {
+                const hour = Math.floor(i / 12);
+                const minute = (i % 12) * 5;
+                const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                
+                // Generate random discharge amount (0-5 kWh per 5-min interval)
+                const discharge = (Math.random() * 5).toFixed(2);
+                
+                // Generate price based on time of day (higher during peak hours)
+                let basePrice = 100;
+                if (hour >= 17 && hour <= 20) basePrice = 300; // Peak hours
+                else if (hour >= 6 && hour <= 9) basePrice = 200; // Morning peak
+                const price = (basePrice + Math.random() * 50 - 25).toFixed(2);
+                
+                // Calculate profit
+                const profit = (discharge * price / 1000).toFixed(2);
+                
+                data.push({
+                    time: timeStr,
+                    discharge: parseFloat(discharge),
+                    price: parseFloat(price),
+                    profit: parseFloat(profit)
+                });
+            }
+            
+            return data;
+        }
+
+        // Load discharge content into drawer
+        function loadDischargeContent(content, dischargeData, period) {
+            // Calculate totals
+            const totalDischarge = dischargeData.reduce((sum, item) => sum + item.discharge, 0).toFixed(2);
+            const avgPrice = (dischargeData.reduce((sum, item) => sum + item.price, 0) / dischargeData.length).toFixed(2);
+            const totalProfit = dischargeData.reduce((sum, item) => sum + item.profit, 0).toFixed(2);
+            
+            content.innerHTML = `
+                <!-- Summary Cards -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px;">
+                    <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 10px;">
+                            ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Total Discharge' : '总放电量'}
+                        </div>
+                        <div style="font-size: 22px; font-weight: 600; color: var(--color-primary);">${totalDischarge} kWh</div>
+                    </div>
+                    <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; text-align: center;">
+                        <div style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 10px;">
+                            ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Total Profit' : '总获利'}
+                        </div>
+                        <div style="font-size: 22px; font-weight: 600; color: #00ff88;">$${totalProfit}</div>
+                    </div>
+                </div>
+                
+                <!-- Data Table -->
+                <div style="background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 8px; overflow: hidden;">
+                    <div style="max-height: 70vh; overflow-y: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); background: rgba(20, 20, 30, 0.95); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10;">
+                                        ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Time' : '时间'}
+                                    </th>
+                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); background: rgba(20, 20, 30, 0.95); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10;">
+                                        ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Discharge' : '放电量'} (kWh)
+                                    </th>
+                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); background: rgba(20, 20, 30, 0.95); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10;">
+                                        ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Price' : '价格'} ($/MWh)
+                                    </th>
+                                    <th style="padding: 12px; text-align: right; border-bottom: 1px solid var(--color-border); font-size: 12px; color: var(--color-text-secondary); background: rgba(20, 20, 30, 0.95); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10;">
+                                        ${window.i18n && window.i18n.currentLanguage === 'en' ? 'Profit' : '收益'} ($)
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dischargeData.map(item => `
+                                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                        <td style="padding: 8px 12px; font-size: 13px; color: var(--color-text);">${item.time}</td>
+                                        <td style="padding: 8px 12px; text-align: right; font-size: 13px; color: var(--color-text);">${item.discharge}</td>
+                                        <td style="padding: 8px 12px; text-align: right; font-size: 13px; color: var(--color-text);">$${item.price}</td>
+                                        <td style="padding: 8px 12px; text-align: right; font-size: 13px; color: #00ff88;">$${item.profit}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
         // Track dispatch records page
         let dispatchCurrentPage = 1;
         
@@ -1771,38 +2212,100 @@
             switch(tab) {
                 case 'basicInfo':
                     content.innerHTML = `
-                        <div class="drawer-info-grid">
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.deviceCode') : '设备编码'}</div>
-                                <div class="drawer-info-value">${family.deviceCode}</div>
+                        <!-- 用户信息 -->
+                        <div class="drawer-category-section">
+                            <h4 class="drawer-category-title">👤 ${window.i18n ? window.i18n.getText('family.drawer.userInfo') : '用户'}</h4>
+                            <div class="drawer-info-grid">
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.owner') : '用户'}</div>
+                                    <div class="drawer-info-value">
+                                        ${window.i18n ? window.i18n.getText(family.nameKey) : family.name}
+                                        <span class="status-badge ${family.status === 'active' ? 'active' : 'inactive'}" style="margin-left: 8px;">
+                                            <span class="status-indicator"></span>
+                                            ${family.status === 'active' ? (window.i18n ? window.i18n.getText('family.activityStatus.active') : '活跃') : (window.i18n ? window.i18n.getText('family.activityStatus.inactive') : '非活跃')}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.avgProfit') : '日均收益'}</div>
+                                    <div class="drawer-info-value">$${family.avgProfit}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.deviceCode') : '设备编码'}</div>
+                                    <div class="drawer-info-value">${family.deviceCode}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.meterNumber') : '电表'}</div>
+                                    <div class="drawer-info-value">${family.meterNumber}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.address') : '地址'}</div>
+                                    <div class="drawer-info-value">${family.location}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.operatingDays') : '运行天数'}</div>
+                                    <div class="drawer-info-value">${Math.floor(Math.random() * 300 + 200)}${window.i18n ? window.i18n.getText('family.drawer.day') : '天'}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.totalRevenue') : '累计获利'}</div>
+                                    <div class="drawer-info-value">$${family.totalProfit || Math.floor(family.todayProfit * 30)}</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.avgProfit') : '日均获利'}</div>
+                                    <div class="drawer-info-value">$${family.avgProfit || Math.floor(family.todayProfit * 0.8)}</div>
+                                </div>
                             </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.batteryCapacity') : '电池容量'}</div>
-                                <div class="drawer-info-value">13.5kWh</div>
+                        </div>
+
+                        <!-- 电池信息 -->
+                        <div class="drawer-category-section">
+                            <h4 class="drawer-category-title">🔋 ${window.i18n ? window.i18n.getText('family.drawer.batteryInfo') : '电池'}</h4>
+                            <div class="drawer-info-grid">
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.batteryCapacity') : '电池容量'}</div>
+                                    <div class="drawer-info-value">13.5kWh</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.soc') : 'SOC'}</div>
+                                    <div class="drawer-info-value">${family.soc}%</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.status') : '状态'}（${window.i18n ? window.i18n.getText('family.drawer.realtimePower') : '实时功率'}）</div>
+                                    <div class="drawer-info-value">
+                                        ${window.i18n ? window.i18n.getText('family.deviceStates.' + family.deviceStatus) : family.deviceStatus} (${(Math.random() * 5 + 1).toFixed(1)}kW)
+                                        ${family.batteryMissing ? `<span style="color: #ff4757; margin-left: 8px; font-size: 12px; font-weight: 600;">⚠ ${window.i18n ? window.i18n.getText('family.drawer.batteryMissing') : '缺少电池'}</span>` : ''}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.soc') : 'SOC'}</div>
-                                <div class="drawer-info-value">${family.soc}%</div>
+                        </div>
+
+                        <!-- 光伏信息 -->
+                        <div class="drawer-category-section">
+                            <h4 class="drawer-category-title">☀️ ${window.i18n ? window.i18n.getText('family.drawer.pvInfo') : '光伏'}</h4>
+                            <div class="drawer-info-grid">
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.pvPower') : 'PV发电功率'}</div>
+                                    <div class="drawer-info-value">${(Math.random() * 6 + 2).toFixed(1)}kW</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.outputPower') : '输出功率'}</div>
+                                    <div class="drawer-info-value">${(Math.random() * 4 + 1).toFixed(1)}kW</div>
+                                </div>
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.todayPvDirectLoad') : '今日PV直供负载量'}</div>
+                                    <div class="drawer-info-value">${(Math.random() * 20 + 5).toFixed(1)}kWh</div>
+                                </div>
                             </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.status') : '状态'}</div>
-                                <div class="drawer-info-value">${window.i18n ? window.i18n.getText('family.deviceStates.' + family.deviceStatus) : family.deviceStatus}</div>
-                            </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.operatingDays') : '运行天数'}</div>
-                                <div class="drawer-info-value">${Math.floor(Math.random() * 300 + 200)}${window.i18n ? window.i18n.getText('family.drawer.day') : '天'}</div>
-                            </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.owner') : '所属用户'}</div>
-                                <div class="drawer-info-value">${window.i18n ? window.i18n.getText(family.nameKey) : family.name}</div>
-                            </div>
-                            <div class="drawer-info-item">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.meterNumber') : '电表'}</div>
-                                <div class="drawer-info-value">${family.meterNumber}</div>
-                            </div>
-                            <div class="drawer-info-item" style="grid-column: span 2;">
-                                <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.address') : '地址'}</div>
-                                <div class="drawer-info-value">${family.location}</div>
+                        </div>
+
+                        <!-- 负载信息 -->
+                        <div class="drawer-category-section">
+                            <h4 class="drawer-category-title">⚡ ${window.i18n ? window.i18n.getText('family.drawer.loadInfo') : '负载'}</h4>
+                            <div class="drawer-info-grid">
+                                <div class="drawer-info-item">
+                                    <div class="drawer-info-label">${window.i18n ? window.i18n.getText('family.drawer.totalLoadConsumption') : '所有负载消耗量'}</div>
+                                    <div class="drawer-info-value">${(Math.random() * 35 + 15).toFixed(1)}kWh</div>
+                                </div>
                             </div>
                         </div>
                         
@@ -1823,28 +2326,28 @@
                     content.innerHTML = `
                         <div class="revenue-cards">
                             <div class="revenue-card">
-                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.todayProfit') : '今日获利'}</div>
+                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.todayCharge') : '今日充电量'}</div>
+                                <div class="revenue-card-value">${(Math.random() * 30 + 10).toFixed(1)}kWh</div>
+                            </div>
+                            <div class="revenue-card">
+                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.todayDischarge') : '今日放电量'}</div>
+                                <div class="revenue-card-value">${(Math.random() * 25 + 8).toFixed(1)}kWh</div>
+                            </div>
+                            <div class="revenue-card">
+                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.todayProfit') : '今日收益'}</div>
                                 <div class="revenue-card-value">$${family.todayProfit}</div>
                             </div>
                             <div class="revenue-card">
-                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.avgProfit') : '日均获利'}</div>
-                                <div class="revenue-card-value">$${family.avgProfit}</div>
+                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.totalCharge') : '累计充电量'}</div>
+                                <div class="revenue-card-value">${(Math.random() * 5000 + 2000).toFixed(0)}kWh</div>
+                            </div>
+                            <div class="revenue-card">
+                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.totalDischarge') : '累计放电量'}</div>
+                                <div class="revenue-card-value">${(Math.random() * 4500 + 1800).toFixed(0)}kWh</div>
                             </div>
                             <div class="revenue-card">
                                 <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.totalRevenue') : '累计收益'}</div>
                                 <div class="revenue-card-value">$${family.totalProfit}</div>
-                            </div>
-                            <div class="revenue-card">
-                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.todayDischarge') : '今日放电量'}</div>
-                                <div class="revenue-card-value">--</div>
-                            </div>
-                            <div class="revenue-card">
-                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.avgDischarge') : '日均放电量'}</div>
-                                <div class="revenue-card-value">--</div>
-                            </div>
-                            <div class="revenue-card">
-                                <div class="revenue-card-label">${window.i18n ? window.i18n.getText('family.drawer.totalDischarge') : '累计放电量'}</div>
-                                <div class="revenue-card-value">--</div>
                             </div>
                         </div>
                         
@@ -2143,9 +2646,6 @@
             console.log('Search:', value);
         }
 
-        function handleActivityFilter(value) {
-            console.log('Activity filter:', value);
-        }
 
         function handleDeviceCodeSearch(value) {
             console.log('Device code search:', value);
@@ -2155,8 +2655,11 @@
             console.log('Meter search:', value);
         }
 
+        
+        
         function handleDeviceStatusFilter(value) {
             console.log('Device status filter:', value);
+            // This will be handled by applyFilters function
         }
 
         function handleRegionFilter(value) {
@@ -2185,9 +2688,9 @@
             document.getElementById('regionFilter').value = '';
             document.getElementById('searchInput').value = '';
             document.getElementById('meterInput').value = '';
-            document.getElementById('activityFilter').value = '';
             document.getElementById('deviceCodeInput').value = '';
             document.getElementById('deviceStatusFilter').value = '';
+            
             currentPage = 1;
             loadFamilyCards();
         }
@@ -2444,19 +2947,40 @@
             window.open(`running-data.html?meter=${meterNumber}&family=${encodeURIComponent(familyName)}`, '_blank');
         }
 
+        
+        // Query filtered data flow directions
+        window.queryFilteredFlows = function() {
+            console.log('=== 当前筛选结果流向数据 ===');
+            console.log('筛选后设备数:', window.filteredData.length);
+            
+            window.filteredData.forEach(family => {
+                console.log(`${family.name}: ${family.deviceStatus} - ${family.chargingSource || family.dischargingDestination || 'N/A'}`);
+            });
+            
+            return window.filteredData.map(f => ({
+                name: f.name,
+                status: f.deviceStatus,
+                chargingSource: f.chargingSource,
+                dischargingDestination: f.dischargingDestination
+            }));
+        };
+
         // Make all functions globally accessible
         window.viewFamilyDetails = viewFamilyDetails;
         window.viewRunningData = viewRunningData;
         window.closeFamilyDrawer = closeFamilyDrawer;
         window.confirmFamilyDetails = confirmFamilyDetails;
+        window.openDischargeDrawer = openDischargeDrawer;
+        window.closeDischargeDrawer = closeDischargeDrawer;
+        window.handleDrawerOverlayClick = handleDrawerOverlayClick;
+        window.testShowDrawer = testShowDrawer;
         window.switchDrawerTab = switchDrawerTab;
         window.changeDispatchPage = changeDispatchPage;
         window.handleSearch = handleSearch;
         window.handleMeterSearch = handleMeterSearch;
-        window.handleActivityFilter = handleActivityFilter;
         window.handleDeviceCodeSearch = handleDeviceCodeSearch;
-        window.handleDeviceStatusFilter = handleDeviceStatusFilter;
         window.handleRegionFilter = handleRegionFilter;
+        window.handleDeviceStatusFilter = handleDeviceStatusFilter;
         window.applyFilters = applyFilters;
         window.resetFilters = resetFilters;
         window.exportData = exportData;
