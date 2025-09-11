@@ -672,8 +672,8 @@
         }
 
         .status-badge.active {
-            background: rgba(0, 185, 107, 0.1);
-            color: var(--color-primary);
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
         }
 
         .status-badge.inactive {
@@ -687,18 +687,18 @@
         }
 
         .status-badge.charging {
-            background: rgba(0, 185, 107, 0.1);
-            color: var(--color-primary);
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
         }
 
         .status-badge.discharging {
-            background: rgba(30, 127, 255, 0.1);
-            color: var(--color-accent);
+            background: rgba(255, 149, 0, 0.1);
+            color: #ff9500;
         }
 
         .status-badge.standby {
-            background: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
+            background: rgba(30, 127, 255, 0.1);
+            color: #1e7fff;
         }
 
         .status-badge.offline {
@@ -711,6 +711,21 @@
             height: 6px;
             border-radius: 50%;
             background: currentColor;
+        }
+
+        /* Operation Mode Badge */
+        .operation-mode-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .operation-mode-badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Flow Direction Styles */
@@ -1280,6 +1295,15 @@
                         </optgroup>
                     </select>
                     
+                    <!-- Operation Mode Filter -->
+                    <select class="filter-select" id="operationModeFilter" onchange="handleOperationModeFilter(this.value)">
+                        <option value="" data-i18n-key="family.placeholder.operationMode">所有运行模式</option>
+                        <option value="0" data-i18n-key="family.operationMode.0">自用模式</option>
+                        <option value="1" data-i18n-key="family.operationMode.1">并网优先模式</option>
+                        <option value="2" data-i18n-key="family.operationMode.2">预留模式</option>
+                        <option value="3" data-i18n-key="family.operationMode.3">备用模式</option>
+                    </select>
+                    
                     <div class="filter-actions">
                         <button class="filter-btn primary" onclick="applyFilters()">
                             <span>🔍</span>
@@ -1344,6 +1368,7 @@
                                 </th>
                                 <th data-i18n-key="family.table.deviceCode">设备编码</th>
                                 <th data-i18n-key="family.table.deviceStatus">设备状态</th>
+                                <th data-i18n-key="family.table.operationMode">运行模式</th>
                                 <th>
                                     <span data-i18n-key="family.table.soc">SOC</span>
                                     <span class="sort-buttons">
@@ -1581,6 +1606,7 @@
                     avgProfit: (Math.random() * 15 + 3).toFixed(1),
                     deviceCode: `DEVICE${String(i + 1).padStart(3, '0')}`,
                     deviceStatus: deviceStatus,
+                    operationMode: Math.floor(Math.random() * 4), // 0-3: 自用模式、并网优先模式、预留模式、备用模式
                     chargingSource: chargingSource,
                     dischargingDestination: dischargingDestination,
                     usageDays: Math.floor(Math.random() * 300 + 30),
@@ -1839,18 +1865,28 @@
                 <td style="cursor: pointer; color: var(--color-primary);" onclick="openDischargeDrawer('${family.id}', 'today')">$${family.todayProfit}</td>
                 <td>$${family.totalProfit || Math.floor(family.todayProfit * 30)}</td>
                 <td>${family.deviceCode}</td>
-                <td>
-                    ${family.deviceStatus === 'charging' || family.deviceStatus === 'discharging' ? '' : `
+                <td style="display: flex; align-items: flex-start; gap: 12px; width: 100%;">
+                    <div style="flex-shrink: 0;">
                         <span class="status-badge ${deviceStatusClass}">
                             <span class="status-indicator"></span>
                             ${deviceStatusText}
                         </span>
-                        <br>
-                    `}
-                    <span class="flow-direction">
-                        ${getFlowDirection(family)}
+                    </div>
+                    <div style="flex: 1; text-align: left; font-size: 12px;">
+                        <div class="flow-direction">
+                            ${getFlowDirection(family)}
+                        </div>
+                        ${family.batteryMissing ? `<div style="color: #ff4757; font-size: 11px; font-weight: 600; margin-top: 2px;">⚠ ${window.i18n ? window.i18n.getText('family.drawer.batteryMissing') : '缺少电池'}</div>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <span class="operation-mode-badge mode-${family.operationMode}">
+                        ${window.i18n ? window.i18n.getText('family.operationMode.' + family.operationMode) : 
+                          (family.operationMode === 0 ? '自用模式' : 
+                           family.operationMode === 1 ? '并网优先模式' : 
+                           family.operationMode === 2 ? '预留模式' : '备用模式')
+                        }
                     </span>
-                    ${family.batteryMissing ? ` <span style="color: #ff4757; font-size: 11px; font-weight: 600;">⚠ ${window.i18n ? window.i18n.getText('family.drawer.batteryMissing') : '缺少电池'}</span>` : ''}
                 </td>
                 <td>${family.soc}%</td>
                 <td>$${(family.soc * 15).toFixed(2)}</td>
@@ -1914,6 +1950,12 @@
                 } else {
                     window.filteredData = window.filteredData.filter(family => family.deviceStatus === deviceStatusValue);
                 }
+            }
+
+            // Apply operation mode filter
+            const operationModeValue = document.getElementById('operationModeFilter').value;
+            if (operationModeValue) {
+                window.filteredData = window.filteredData.filter(family => family.operationMode.toString() === operationModeValue);
             }
 
             // Update pagination
@@ -2662,6 +2704,11 @@
             // This will be handled by applyFilters function
         }
 
+        function handleOperationModeFilter(value) {
+            console.log('Operation mode filter:', value);
+            // This will be handled by applyFilters function
+        }
+
         function handleRegionFilter(value) {
             console.log('Region filter:', value);
             // 可以在这里添加地区筛选的逻辑
@@ -2690,6 +2737,7 @@
             document.getElementById('meterInput').value = '';
             document.getElementById('deviceCodeInput').value = '';
             document.getElementById('deviceStatusFilter').value = '';
+            document.getElementById('operationModeFilter').value = '';
             
             currentPage = 1;
             loadFamilyCards();
@@ -2981,6 +3029,7 @@
         window.handleDeviceCodeSearch = handleDeviceCodeSearch;
         window.handleRegionFilter = handleRegionFilter;
         window.handleDeviceStatusFilter = handleDeviceStatusFilter;
+        window.handleOperationModeFilter = handleOperationModeFilter;
         window.applyFilters = applyFilters;
         window.resetFilters = resetFilters;
         window.exportData = exportData;

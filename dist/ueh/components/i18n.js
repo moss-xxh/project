@@ -1028,6 +1028,7 @@ class I18n {
                         allStatus: "所有状态",
                         allActivity: "所有活跃度",
                         deviceStatus: "所有设备状态",
+                        operationMode: "所有运行模式",
                         userName: "请输入用户名称...",
                         deviceCode: "请输入设备编码...",
                         meterNumber: "请输入电表编号...",
@@ -1049,6 +1050,7 @@ class I18n {
                         avgProfit: "日均获利 ($)",
                         deviceCode: "设备编码",
                         deviceStatus: "设备状态",
+                        operationMode: "运行模式",
                         flowDirection: "流向/来源",
                         meterNumber: "电表",
                         soc: "SOC",
@@ -1070,6 +1072,12 @@ class I18n {
                         lightOn: "有亮灯",
                         lightOff: "没有亮灯",
                         missingBattery: "缺少电池"
+                    },
+                    operationMode: {
+                        0: "自用模式",
+                        1: "并网优先模式", 
+                        2: "预留模式",
+                        3: "备用模式"
                     },
                     filters: {
                         socRange: "SOC范围",
@@ -1691,6 +1699,7 @@ class I18n {
                         allActivity: "所有活跃度",
                         deviceCode: "请输入设备编码...",
                         deviceStatus: "所有设备状态",
+                        operationMode: "所有运行模式",
                         allRegions: "所有地区",
                         meterNumber: "请输入电表编号..."
                     },
@@ -1706,6 +1715,12 @@ class I18n {
                         lightOn: "有亮灯",
                         lightOff: "没有亮灯",
                         missingBattery: "缺少电池"
+                    },
+                    operationMode: {
+                        0: "自用模式",
+                        1: "并网优先模式", 
+                        2: "预留模式",
+                        3: "备用模式"
                     },
                     buttons: {
                         search: "查询",
@@ -1734,6 +1749,7 @@ class I18n {
                         avgProfit: "日均获利 ($)",
                         deviceCode: "设备编码",
                         deviceStatus: "设备状态",
+                        operationMode: "运行模式",
                         flowDirection: "流向/来源",
                         soc: "SOC",
                         socValue: "电池价值",
@@ -2946,6 +2962,7 @@ class I18n {
                         allStatus: "All Status",
                         allActivity: "All Activity",
                         deviceStatus: "All Device Status",
+                        operationMode: "All Operation Mode",
                         userName: "Enter user name...",
                         deviceCode: "Enter device code...",
                         meterNumber: "Enter NMI...",
@@ -2966,6 +2983,7 @@ class I18n {
                         avgProfit: "Avg Daily Profit ($)",
                         deviceCode: "Device Code",
                         deviceStatus: "Device Status",
+                        operationMode: "Operation Mode",
                         flowDirection: "Flow/Source",
                         meterNumber: "NMI",
                         soc: "SOC",
@@ -2987,6 +3005,12 @@ class I18n {
                         lightOn: "Light On",
                         lightOff: "Light Off",
                         missingBattery: "Missing Battery"
+                    },
+                    operationMode: {
+                        0: "Self used mode",
+                        1: "Feed-in priority mode",
+                        2: "Reserved",
+                        3: "Back-up mode"
                     },
                     filters: {
                         socRange: "SOC Range",
@@ -3590,6 +3614,7 @@ class I18n {
                         allActivity: "All Activity",
                         deviceCode: "Enter device code...",
                         deviceStatus: "All Device Status",
+                        operationMode: "All Operation Mode",
                         allRegions: "All Regions"
                     },
                     activityStatus: {
@@ -3604,6 +3629,12 @@ class I18n {
                         lightOn: "Light On",
                         lightOff: "Light Off",
                         missingBattery: "Missing Battery"
+                    },
+                    operationMode: {
+                        0: "Self used mode",
+                        1: "Feed-in priority mode",
+                        2: "Reserved",
+                        3: "Back-up mode"
                     },
                     buttons: {
                         search: "Search",
@@ -3632,6 +3663,7 @@ class I18n {
                         avgProfit: "Avg Daily Profit ($)",
                         deviceCode: "Device Code",
                         deviceStatus: "Device Status",
+                        operationMode: "Operation Mode",
                         flowDirection: "Flow/Source",
                         soc: "SOC",
                         socValue: "Battery Value",
