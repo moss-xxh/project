@@ -1,0 +1,2897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Authorisation and Consent for VPP Platform</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Signature Pad -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+
+    <!-- Tailwind 配置 - 苹果风格 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0071e3',
+                        secondary: '#1d1d1f',
+                        tertiary: '#86868b',
+                        light: '#f5f5f7',
+                        success: '#34c759',
+                        warning: '#ff9500',
+                        danger: '#ff3b30',
+                        border: '#d2d2d7',
+                        covau: '#4A90E2',
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'apple': '0 2px 10px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)',
+                        'apple-hover': '0 5px 15px rgba(0, 0, 0, 0.08), 0 2px 5px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .input-focus {
+                @apply focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all duration-200;
+            }
+            .btn-apple {
+                @apply bg-primary text-white font-medium py-2.5 px-4 rounded-full shadow-sm transition-all duration-200 hover:bg-primary/90 active:bg-primary/80;
+            }
+            .btn-outline {
+                @apply bg-white text-black border-2 border-black font-medium py-2.5 px-4 rounded-full shadow-sm transition-all duration-200 hover:bg-black hover:text-white active:bg-black/80 active:text-white;
+            }
+            .btn-covau {
+                @apply bg-covau text-white font-medium py-2.5 px-6 rounded-lg shadow-sm transition-all duration-200 hover:bg-covau/90 active:bg-covau/80;
+            }
+            .btn-black {
+                @apply bg-black text-white font-medium py-2.5 px-4 rounded-full shadow-sm transition-all duration-200 hover:bg-black/90 active:bg-black/80;
+            }
+            .input-apple {
+                @apply w-full px-4 py-3 bg-white border border-border rounded-lg transition-all duration-200;
+                &:focus {
+                    @apply ring-1 ring-black border-black text-black outline-none;
+                }
+            }
+            .label-apple {
+                @apply block text-sm font-medium text-secondary mb-2;
+            }
+            .card-apple {
+                @apply bg-white/90 backdrop-blur-sm rounded-xl shadow-apple overflow-hidden transition-all duration-300 hover:shadow-apple-hover;
+            }
+            .signature-pad {
+                background-color: white;
+                display: block;
+            }
+            
+            .signature-container {
+                position: relative;
+            }
+            
+            .signature-container::after {
+                content: '';
+                position: absolute;
+                bottom: 20px;
+                left: 20px;
+                right: 20px;
+                height: 1px;
+                background: repeating-linear-gradient(
+                    to right,
+                    transparent,
+                    transparent 8px,
+                    #d2d2d7 8px,
+                    #d2d2d7 16px
+                );
+                pointer-events: none;
+                opacity: 0.5;
+            }
+            
+            /* Address Modal Styles */
+            .input-with-icon {
+                padding-left: 2.75rem;
+            }
+            
+            .input-with-icon + div {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 2.25rem;
+                height: 100%;
+            }
+            
+            #address-modal-content {
+                transform: translateY(100%);
+            }
+            
+            #address-modal-content.translate-y-0 {
+                transform: translateY(0);
+            }
+            
+            .address-item:hover {
+                background-color: #f5f5f7;
+            }
+            
+            /* Signature clear button style - matching original */
+            .hover\\:text-danger:hover {
+                color: #ff3b30;
+            }
+            
+            
+        }
+    </style>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f5f5f7 100%);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #1d1d1f;
+        }
+        
+        .terms-box {
+            background: #f8f9ff;
+            border: 1px solid #e1e7ff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .terms-list {
+            padding-left: 1.5rem;
+        }
+        
+        .terms-list li {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e5e5e7;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.75rem;
+            margin-top: 0.25rem;
+            min-width: 1rem;
+        }
+        
+        .covau-logo {
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 25px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e5e7;
+        }
+        
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #86868b;
+        }
+        
+        .lang-btn.active {
+            background: #4A90E2;
+            color: white;
+            box-shadow: 0 1px 3px rgba(74, 144, 226, 0.3);
+        }
+        
+        .lang-btn:hover:not(.active) {
+            color: #4A90E2;
+            background: #f8f9ff;
+        }
+        
+        /* Language switching without module separation */
+        .lang-text {
+            display: inline;
+        }
+        
+        .lang-zh .lang-text[data-lang="en"] {
+            display: none;
+        }
+        
+        .lang-zh .lang-text[data-lang="zh"] {
+            display: inline;
+        }
+        
+        .lang-en .lang-text[data-lang="zh"] {
+            display: none;
+        }
+        
+        .lang-en .lang-text[data-lang="en"] {
+            display: inline;
+        }
+        
+        /* 全局样式 */
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #f5f5f7 100%);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* 背景装饰 */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
+            opacity: 0.15;
+        }
+        
+        body::before {
+            width: 500px;
+            height: 500px;
+            background: #0071e3;
+            top: -250px;
+            right: -250px;
+        }
+        
+        body::after {
+            width: 600px;
+            height: 600px;
+            background: #34c759;
+            bottom: -300px;
+            left: -300px;
+        }
+        
+        @media print {
+            .no-print, .language-switcher {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            body::before,
+            body::after {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans text-secondary flex flex-col lang-en">
+    <!-- 头部导航 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="新logo.png" alt="CovaU Logo" class="h-8 w-auto">
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- 查询按钮 -->
+                <button id="query-btn" class="flex items-center px-4 py-2 rounded-full bg-black text-white hover:bg-black/90 transition-colors">
+                    <i class="fa fa-search mr-2"></i>
+                    <span class="lang-text" data-lang="en">Query</span>
+                    <span class="lang-text" data-lang="zh">查询</span>
+                </button>
+                <!-- 语言选择器 -->
+                <div class="relative">
+                    <button id="language-dropdown-btn" class="flex items-center px-3 py-2 rounded-full bg-light hover:bg-gray-200 transition-colors">
+                        <span id="current-language" class="mr-1">EN</span>
+                        <i class="fa fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="language-dropdown" class="hidden absolute right-0 mt-2 w-20 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                        <button onclick="switchLanguage('en')" class="language-option w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors text-sm" data-lang="en">
+                            EN
+                        </button>
+                        <button onclick="switchLanguage('zh')" class="language-option w-full text-left px-3 py-2 hover:bg-gray-50 transition-colors text-sm" data-lang="zh">
+                            中文
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 py-10 max-w-4xl flex-1">
+        <!-- Step 1: Customer Authorization -->
+        <div id="step1-content">
+        <!-- Header -->
+        <div class="card-apple p-6 mb-6" id="form-container">
+            <form id="vpp-authorization-form">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <img src="新logo.png" alt="CovaU Logo" class="h-12 w-auto">
+                </div>
+                <div class="text-right text-sm text-secondary">
+                    <p class="mb-1">
+                        <span class="lang-text" data-lang="en">CovaU Pty Ltd (ABN 54 090 117 730)</span>
+                        <span class="lang-text" data-lang="zh">CovaU Pty Ltd (ABN 54 090 117 730)</span>
+                    </p>
+                    <p>
+                        <span class="lang-text" data-lang="en">Enquiries: </span>
+                        <span class="lang-text" data-lang="zh">咨询热线: </span>
+                        <strong>1300 689 866</strong>
+                    </p>
+                </div>
+            </div>
+            <h1 class="text-2xl font-bold text-secondary mb-4 text-center">
+                <span class="lang-text" data-lang="en">Customer Authorisation and Consent for VPP Platform</span>
+                <span class="lang-text" data-lang="zh">虚拟电厂平台客户授权与同意书</span>
+            </h1>
+            
+            <div class="text-secondary leading-relaxed">
+                <p class="mb-4">
+                    <span class="lang-text" data-lang="en">Dear Customer,</span>
+                    <span class="lang-text" data-lang="zh">尊敬的客户：</span>
+                </p>
+                <p class="mb-4">
+                    <span class="lang-text" data-lang="en">Thank you for choosing CovaU as your Virtual Power Plant (VPP) provider.</span>
+                    <span class="lang-text" data-lang="zh">感谢您选择CovaU作为您的虚拟电厂(VPP)服务提供商。</span>
+                </p>
+                <p class="mb-4">
+                    <span class="lang-text" data-lang="en">This Authorisation Form is intended to grant your consent and authorisation to CovaU, allowing us to perform the services we provide to you as part of the operation of our VPP, as well as the services you provide to us, including granting CovaU access to and control over your Battery.</span>
+                    <span class="lang-text" data-lang="zh">本授权书旨在获得您的同意和授权，允许CovaU在运营虚拟电厂过程中为您提供服务，以及您向我们提供的服务，包括授权CovaU访问和控制您的电池系统。</span>
+                </p>
+                <p class="mb-4">
+                    <span class="lang-text" data-lang="en">VPP Platform means CovaU "VPP Platform" system which will communicate with, access and control your Eligible Battery System during VPP Events, as may be updated from time to time by CovaU.</span>
+                    <span class="lang-text" data-lang="zh">VPP平台 指CovaU的"VPP平台"系统，该系统将在VPP事件期间与您的符合条件的电池系统进行通信、访问和控制，CovaU可能会不时更新该系统。</span>
+                </p>
+                <p class="text-warning font-medium mb-6">
+                    <span class="lang-text" data-lang="en">Before signing the Form, please make sure all your details and system details are correct.</span>
+                    <span class="lang-text" data-lang="zh">签署本表格前，请确保您的所有详细信息和系统详细信息都是正确的。</span>
+                </p>
+                
+                <h2 class="section-title">
+                    <span class="lang-text" data-lang="en">Customer Details</span>
+                    <span class="lang-text" data-lang="zh">客户详情</span>
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="label-apple" for="customerName">
+                        <span class="lang-text" data-lang="en">Customer Name</span>
+                        <span class="lang-text" data-lang="zh">客户姓名</span>
+                    </label>
+                    <input type="text" id="customerName" name="customerName" class="input-apple" 
+                           data-placeholder-en="Enter customer name" 
+                           data-placeholder-zh="请输入客户姓名"
+                           placeholder="Enter customer name">
+                </div>
+                <div>
+                    <label class="label-apple" for="mobile">
+                        <span class="lang-text" data-lang="en">Mobile</span>
+                        <span class="lang-text" data-lang="zh">手机号码</span>
+                    </label>
+                    <input type="tel" id="mobile" name="mobile" class="input-apple" 
+                           data-placeholder-en="Enter mobile number" 
+                           data-placeholder-zh="请输入手机号码"
+                           placeholder="Enter mobile number">
+                </div>
+                <div>
+                    <label class="label-apple" for="email">
+                        <span class="lang-text" data-lang="en">Email</span>
+                        <span class="lang-text" data-lang="zh">电子邮箱</span>
+                    </label>
+                    <input type="email" id="email" name="email" class="input-apple" 
+                           data-placeholder-en="Enter email address" 
+                           data-placeholder-zh="请输入电子邮箱地址"
+                           placeholder="Enter email address">
+                </div>
+                <div>
+                    <label class="label-apple" for="nmi">
+                        <span class="lang-text" data-lang="en">NMI</span>
+                        <span class="lang-text" data-lang="zh">NMI编号</span>
+                    </label>
+                    <input type="text" id="nmi" name="nmi" class="input-apple" 
+                           data-placeholder-en="Enter NMI" 
+                           data-placeholder-zh="请输入NMI编号"
+                           placeholder="Enter NMI">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="label-apple" for="supplyAddress">
+                        <span class="lang-text" data-lang="en">Supply Address</span>
+                        <span class="lang-text" data-lang="zh">供电地址</span>
+                    </label>
+                    
+                    <!-- Supply Address - Two Fields Side by Side -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Main Address -->
+                        <div>
+                            <input type="text" id="supplyAddress" name="supplyAddress" 
+                                   data-placeholder-en="Click to select address" 
+                                   data-placeholder-zh="点击选择地址"
+                                   placeholder="Click to select address"
+                                   class="input-apple cursor-pointer" 
+                                   readonly
+                                   value="Sydney, NSW, Australia">
+                        </div>
+                        
+                        <!-- Address Details -->
+                        <div>
+                            <textarea id="addressDetails" name="addressDetails" rows="3" class="input-apple resize-none"
+                                      data-placeholder-en="Additional address information (unit number, building name, special instructions, etc.)"
+                                      data-placeholder-zh="额外地址信息（单元号、楼宇名称、特殊说明等）"
+                                      placeholder="Additional address information (unit number, building name, special instructions, etc.)"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title mt-8">
+                <span class="lang-text" data-lang="en">System Details</span>
+                <span class="lang-text" data-lang="zh">系统详情</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="label-apple" for="batteryBrand">
+                        <span class="lang-text" data-lang="en">Brand</span>
+                        <span class="lang-text" data-lang="zh">品牌</span>
+                    </label>
+                    <select id="batteryBrand" name="batteryBrand" class="input-apple">
+                        <option value="" selected></option>
+                        <option value="ipotisedge">ipotisedge</option>
+                        <option value="FOX ESS">FOX ESS</option>
+                        <option value="weiheng">weiheng</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-apple" for="batteryAccount">
+                        <span class="lang-text" data-lang="en">User Name</span>
+                        <span class="lang-text" data-lang="zh">用户名</span>
+                        <button type="button" class="hint-icon ml-2" onclick="openHintModal('account')" title="查看示例图片">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="17" r="1" fill="#6B7280"/>
+                            </svg>
+                        </button>
+                    </label>
+                    <input type="text" id="batteryAccount" name="batteryAccount" class="input-apple" 
+                           data-placeholder-en="Enter user name" 
+                           data-placeholder-zh="请输入用户名"
+                           placeholder="Enter user name">
+                </div>
+                <div>
+                    <label class="label-apple" for="inverterSN">
+                        <span class="lang-text" data-lang="en">Inverter SN</span>
+                        <span class="lang-text" data-lang="zh">逆变器SN</span>
+                        <button type="button" class="hint-icon ml-2" onclick="openHintModal('inverterSN')" title="查看示例图片">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="17" r="1" fill="#6B7280"/>
+                            </svg>
+                        </button>
+                    </label>
+                    <input type="text" id="inverterSN" name="inverterSN" class="input-apple" 
+                           data-placeholder-en="Enter inverter serial number" 
+                           data-placeholder-zh="请输入逆变器序列号"
+                           placeholder="Enter inverter serial number">
+                </div>
+                <div>
+                    <label class="label-apple" for="batterySize">
+                        <span class="lang-text" data-lang="en">Battery Capacity (kWh)</span>
+                        <span class="lang-text" data-lang="zh">电池容量 (kWh)</span>
+                        <button type="button" class="hint-icon ml-2" onclick="openHintModal('batteryCapacity')" title="查看示例图片">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10" stroke="#6B7280" stroke-width="2"/>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="17" r="1" fill="#6B7280"/>
+                            </svg>
+                        </button>
+                    </label>
+                    <input type="text" id="batterySize" name="batterySize" class="input-apple" 
+                           data-placeholder-en="e.g., 100Ah" 
+                           data-placeholder-zh="如: 100Ah"
+                           placeholder="e.g., 100Ah">
+                </div>
+            </div>
+
+            <h2 class="section-title mt-8">
+                <span class="lang-text" data-lang="en">Customer Signature (s)</span>
+                <span class="lang-text" data-lang="zh">客户签名</span>
+            </h2>
+            
+            <div class="terms-box">
+                <p class="text-secondary mb-4">
+                    <strong>
+                        <span class="lang-text" data-lang="en">Customer Authorisation</span>
+                        <span class="lang-text" data-lang="zh">客户授权</span>
+                    </strong>
+                </p>
+                
+                <p class="text-secondary mb-4">
+                    <span class="lang-text" data-lang="en">By signing this form, I authorise CovaU to:</span>
+                    <span class="lang-text" data-lang="zh">通过签署本表格，我授权CovaU：</span>
+                </p>
+                
+                <ol class="terms-list list-decimal text-secondary">
+                    <li>
+                        <span class="lang-text" data-lang="en">Remotely access and control my Battery at any time during the VPP Services Term for the purposes of the VPP Program.</span>
+                        <span class="lang-text" data-lang="zh">在VPP服务期间随时远程访问和控制我的电池，以用于VPP计划的目的。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Access my Supply Address for on-site work by CovaU technicians or the installer.</span>
+                        <span class="lang-text" data-lang="zh">访问我的供电地址，以便CovaU技术人员或安装人员进行现场工作。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Disclose my Data to third parties that are directly involved in administering the VPP Program, including CovaU's VPP Platform provider or technology partner, for purposes such as Battery status and may need my Supply Address or an identifier for site coordination.</span>
+                        <span class="lang-text" data-lang="zh">向直接参与管理VPP计划的第三方披露我的数据，包括CovaU的VPP平台提供商或技术合作伙伴，用于电池状态等目的，可能需要我的供电地址或站点协调标识符。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Complete the battery connection.</span>
+                        <span class="lang-text" data-lang="zh">完成电池连接。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Engaged the installer to complete the connection, if I requested the battery installation.</span>
+                        <span class="lang-text" data-lang="zh">如果我要求电池安装，则聘请安装人员完成连接。</span>
+                    </li>
+                </ol>
+                
+                <!-- Customer Acknowledgement & Consent -->
+                <p class="text-secondary mb-4 mt-8">
+                    <strong>
+                        <span class="lang-text" data-lang="en">Customer Acknowledgement & Consent</span>
+                        <span class="lang-text" data-lang="zh">客户确认与同意</span>
+                    </strong>
+                </p>
+                
+                <p class="text-secondary mb-4">
+                    <span class="lang-text" data-lang="en">By signing this form, I also acknowledge and agree that:</span>
+                    <span class="lang-text" data-lang="zh">通过签署本表格，我还确认并同意：</span>
+                </p>
+                <ol class="terms-list list-decimal text-secondary">
+                    <li>
+                        <span class="lang-text" data-lang="en">Prior to signing this form, I have already signed and agreed to the CovaU VPP Offer and the CovaU Virtual Power Plant Services Agreement.</span>
+                        <span class="lang-text" data-lang="zh">在签署本表格之前，我已经签署并同意了CovaU VPP报价和CovaU虚拟电厂服务协议。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Prior to signing this authorisation form, I provide my consent for the installer to perform the necessary actions.</span>
+                        <span class="lang-text" data-lang="zh">在签署本授权表格之前，我同意安装人员执行必要的操作。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">CovaU employs reasonable administrative, technical, and physical security measures to protect the Data collected through the VPP Program.</span>
+                        <span class="lang-text" data-lang="zh">CovaU采用合理的管理、技术和物理安全措施来保护通过VPP计划收集的数据。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">When my participation is terminated, CovaU will cease all remote control of my Battery and disconnect the VPP Platform.</span>
+                        <span class="lang-text" data-lang="zh">当我的参与终止时，CovaU将停止对我的电池的所有远程控制并断开VPP平台连接。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">Third-party apps or services are outside of CovaU's control and not covered by CovaU Privacy Policy.</span>
+                        <span class="lang-text" data-lang="zh">第三方应用程序或服务超出CovaU的控制范围，不受CovaU隐私政策保护。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">I acknowledge that CovaU may provide me with access to the VPP Platform app, which is covered by CovaU Privacy Policy.</span>
+                        <span class="lang-text" data-lang="zh">我确认CovaU可能为我提供VPP平台应用程序的访问权限，该应用程序受CovaU隐私政策保护。</span>
+                    </li>
+                    <li>
+                        <span class="lang-text" data-lang="en">I have read and agreed CovaU Privacy Policy through Website <a href="https://covau.com.au/terms-conditions/" class="text-covau underline" target="_blank">https://covau.com.au/terms-conditions/</a>.</span>
+                        <span class="lang-text" data-lang="zh">我已阅读并同意CovaU隐私政策，网址：<a href="https://covau.com.au/terms-conditions/" class="text-covau underline" target="_blank">https://covau.com.au/terms-conditions/</a>。</span>
+                    </li>
+                </ol>
+                
+            </div>
+            
+            <!-- Customer Signature -->
+            <h2 class="section-title mt-8">
+                <span class="lang-text" data-lang="en">Customer Signature</span>
+                <span class="lang-text" data-lang="zh">客户签名</span>
+            </h2>
+            
+            <!-- Customer Signature Section -->
+            <div class="space-y-6">
+                <!-- Signature Canvas -->
+                <div>
+                    <label class="label-apple">
+                        <span class="lang-text" data-lang="en">Customer Signature</span>
+                        <span class="lang-text" data-lang="zh">客户签名</span>
+                    </label>
+                    <div class="signature-container bg-white rounded-lg border-2 border-border overflow-hidden">
+                        <canvas id="customerSignature" class="signature-pad w-full block" 
+                                height="200" 
+                                style="background-color: white; touch-action: none; cursor: crosshair;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Controls at bottom of signature area -->
+                <div class="flex justify-start mt-3">
+                    <button type="button" id="clearCustomerSignature" class="text-sm text-tertiary hover:text-danger transition-colors">
+                        <span class="lang-text" data-lang="en">Clear Signature</span>
+                        <span class="lang-text" data-lang="zh">清除签名</span>
+                    </button>
+                </div>
+                
+                <!-- Signature Date -->
+                <div class="mt-6 flex items-center gap-4">
+                    <label class="text-sm font-medium text-secondary" for="signatureDate">
+                        <span class="lang-text" data-lang="en">Signature Date</span>
+                        <span class="lang-text" data-lang="zh">签名日期</span>
+                    </label>
+                    <input type="date" id="signatureDate" name="signatureDate" class="max-w-xs px-4 py-2.5 bg-gray-100 text-gray-600 border border-gray-300 rounded-lg cursor-not-allowed" readonly>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-6">
+            <!-- Submit Button -->
+            <div class="flex justify-end mt-8">
+                <button type="submit" class="btn-black flex items-center gap-3 px-6 py-3">
+                    <span class="lang-text" data-lang="en">Submit</span>
+                    <span class="lang-text" data-lang="zh">提交</span>
+                    <i class="fa fa-check"></i>
+                </button>
+            </div>
+        </div>
+        </form>
+    </div>
+    </div>
+
+
+    <!-- Address Selection Modal -->
+    <div id="address-modal" class="fixed inset-0 bg-black/70 z-50 flex items-end md:items-center justify-center hidden">
+        <div class="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-lg max-h-[80vh] overflow-hidden transform transition-transform duration-300" id="address-modal-content">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-white border-b border-border z-10">
+                <div class="p-4 flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">
+                        <span class="lang-text" data-lang="en">Select Address</span>
+                        <span class="lang-text" data-lang="zh">选择地址</span>
+                    </h3>
+                    <button id="close-address-btn" class="text-tertiary hover:text-secondary transition-colors p-1">
+                        <i class="fa fa-times text-xl"></i>
+                    </button>
+                </div>
+                <!-- Current Location Button -->
+                <div class="px-4 pb-3">
+                    <button id="modal-location-btn" 
+                            class="w-full flex items-center gap-3 p-3 bg-light rounded-lg hover:bg-border transition-colors">
+                        <i class="fa fa-location-arrow text-primary"></i>
+                        <div class="flex-1 text-left">
+                            <p class="font-medium text-secondary">
+                                <span class="lang-text" data-lang="en">Current Location</span>
+                                <span class="lang-text" data-lang="zh">当前位置</span>
+                            </p>
+                            <p class="text-sm text-tertiary" id="current-location-text">
+                                <span class="lang-text" data-lang="en">Click to get current location</span>
+                                <span class="lang-text" data-lang="zh">点击获取当前位置</span>
+                            </p>
+                        </div>
+                        <i class="fa fa-chevron-right text-tertiary"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Address List -->
+            <div class="overflow-y-auto" style="max-height: calc(80vh - 180px);">
+                <!-- Search Box -->
+                <div class="p-4 border-b border-border">
+                    <div class="relative">
+                        <input type="text" id="address-search" 
+                               data-placeholder-en="Search address" 
+                               data-placeholder-zh="搜索地址"
+                               placeholder="Search address" 
+                               class="w-full px-10 py-2.5 bg-light rounded-lg">
+                        <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-tertiary"></i>
+                    </div>
+                </div>
+                
+                <!-- Popular Addresses -->
+                <div class="p-4">
+                    <p class="text-sm font-medium text-tertiary mb-3">
+                        <span class="lang-text" data-lang="en">Popular Addresses</span>
+                        <span class="lang-text" data-lang="zh">热门地址</span>
+                    </p>
+                    <div class="space-y-2" id="address-list-container">
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Sydney, NSW, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Sydney</p>
+                                    <p class="text-sm text-tertiary">New South Wales, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Melbourne, VIC, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Melbourne</p>
+                                    <p class="text-sm text-tertiary">Victoria, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Brisbane, QLD, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Brisbane</p>
+                                    <p class="text-sm text-tertiary">Queensland, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Perth, WA, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Perth</p>
+                                    <p class="text-sm text-tertiary">Western Australia, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Adelaide, SA, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Adelaide</p>
+                                    <p class="text-sm text-tertiary">South Australia, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Canberra, ACT, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Canberra</p>
+                                    <p class="text-sm text-tertiary">Australian Capital Territory, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Gold Coast, QLD, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Gold Coast</p>
+                                    <p class="text-sm text-tertiary">Queensland, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="address-item w-full text-left p-3 hover:bg-light rounded-lg transition-colors group" 
+                                data-address="Darwin, NT, Australia">
+                            <div class="flex items-start gap-3">
+                                <i class="fa fa-map-marker text-tertiary mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="font-medium text-secondary">Darwin</p>
+                                    <p class="text-sm text-tertiary">Northern Territory, Australia</p>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Manual Input -->
+                <div class="p-4 border-t border-border">
+                    <p class="text-sm font-medium text-tertiary mb-3">
+                        <span class="lang-text" data-lang="en">Enter address manually</span>
+                        <span class="lang-text" data-lang="zh">手动输入地址</span>
+                    </p>
+                    <div class="flex gap-2">
+                        <input type="text" id="manual-address-input" 
+                               data-placeholder-en="Enter detailed address" 
+                               data-placeholder-zh="输入详细地址"
+                               placeholder="Enter detailed address" 
+                               class="flex-1 px-4 py-2.5 bg-light rounded-lg">
+                        <button id="confirm-manual-address" class="btn-apple px-6">
+                            <span class="lang-text" data-lang="en">Confirm</span>
+                            <span class="lang-text" data-lang="zh">确认</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize signature pad
+        let customerSignaturePad;
+        let currentLanguage = 'en';
+        
+        // Ensure page always starts in English by default
+        document.body.className = document.body.className.replace(/lang-(en|zh)/, 'lang-en');
+        
+        // Language switching function
+        function switchLanguage(lang) {
+            console.log('Switching language to:', lang);
+            currentLanguage = lang;
+            document.body.className = document.body.className.replace(/lang-(en|zh)/, 'lang-' + lang);
+            
+            // Update dropdown display
+            const currentLanguageSpan = document.getElementById('current-language');
+            if (currentLanguageSpan) {
+                currentLanguageSpan.textContent = lang === 'zh' ? '中文' : 'EN';
+            }
+            
+            // Hide dropdown
+            const dropdown = document.getElementById('language-dropdown');
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+            
+            // Update placeholders for inputs and textareas
+            document.querySelectorAll('input[data-placeholder-en][data-placeholder-zh], textarea[data-placeholder-en][data-placeholder-zh]').forEach(element => {
+                if (lang === 'zh') {
+                    element.placeholder = element.getAttribute('data-placeholder-zh');
+                } else {
+                    element.placeholder = element.getAttribute('data-placeholder-en');
+                }
+            });
+            
+            // Update address options if function exists
+            if (window.updateAddressOptions) {
+                window.updateAddressOptions(lang);
+            }
+            
+            // Update query condition dropdown options
+            const queryConditionSelect = document.getElementById('query-condition');
+            if (queryConditionSelect) {
+                const options = queryConditionSelect.querySelectorAll('option[data-text-en][data-text-zh]');
+                options.forEach(option => {
+                    const textKey = lang === 'zh' ? 'data-text-zh' : 'data-text-en';
+                    option.textContent = option.getAttribute(textKey);
+                });
+            }
+            
+            // Save language preference
+            localStorage.setItem('preferred-language', lang);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Always default to English - clear any previous language preference
+            localStorage.removeItem('preferred-language');
+            
+            // Force default language to English
+            switchLanguage('en');
+            
+            // Initialize customer signature pad
+            const customerCanvas = document.getElementById('customerSignature');
+            customerSignaturePad = new SignaturePad(customerCanvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)',
+                minWidth: 2,
+                maxWidth: 4,
+                throttle: 16,
+                minDistance: 5
+            });
+            
+            // Resize canvas for high DPI displays
+            function resizeCanvas(canvas, signaturePad) {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * ratio;
+                canvas.height = rect.height * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+                canvas.style.width = rect.width + 'px';
+                canvas.style.height = rect.height + 'px';
+                signaturePad.clear(); // Clear after resize
+            }
+            
+            // Resize on load
+            setTimeout(() => {
+                resizeCanvas(customerCanvas, customerSignaturePad);
+            }, 100);
+            
+            // Clear signature button - simplified like the original
+            document.getElementById('clearCustomerSignature').addEventListener('click', function() {
+                if (customerSignaturePad) {
+                    customerSignaturePad.clear();
+                }
+            });
+            
+            // Load saved signature if exists
+            const savedCustomerSignature = localStorage.getItem('customer-signature');
+            if (savedCustomerSignature && customerSignaturePad) {
+                customerSignaturePad.fromDataURL(savedCustomerSignature);
+            }
+            
+            // Window resize handler
+            window.addEventListener('resize', function() {
+                resizeCanvas(customerCanvas, customerSignaturePad);
+            });
+            
+            // Set today's date
+            document.getElementById('signatureDate').valueAsDate = new Date();
+            
+            // Initialize address functionality
+            initAddressSelection();
+            
+            // Initialize language dropdown
+            initLanguageDropdown();
+            
+            // Initialize form submission
+            handleFormSubmit();
+            
+            // Initialize query functionality
+            initQueryFunction();
+            
+            // Initialize edit submission functionality
+            initEditSubmissionFunction();
+            
+        });
+        
+        // Address Selection Functionality
+        function initAddressSelection() {
+            const addressInput = document.getElementById('supplyAddress');
+            const addressModal = document.getElementById('address-modal');
+            const modalContent = document.getElementById('address-modal-content');
+            const closeBtn = document.getElementById('close-address-btn');
+            const modalLocationBtn = document.getElementById('modal-location-btn');
+            const currentLocationText = document.getElementById('current-location-text');
+            const addressSearch = document.getElementById('address-search');
+            const manualInput = document.getElementById('manual-address-input');
+            const confirmManualBtn = document.getElementById('confirm-manual-address');
+            
+            // Open address selection modal
+            addressInput.addEventListener('click', function() {
+                addressModal.classList.remove('hidden');
+                // Add slide-in animation
+                setTimeout(() => {
+                    modalContent.classList.add('translate-y-0');
+                }, 10);
+            });
+            
+            // Close modal function
+            function closeAddressModal() {
+                modalContent.classList.remove('translate-y-0');
+                setTimeout(() => {
+                    addressModal.classList.add('hidden');
+                }, 300);
+            }
+            
+            closeBtn.addEventListener('click', closeAddressModal);
+            
+            addressModal.addEventListener('click', function(e) {
+                if (e.target === addressModal) {
+                    closeAddressModal();
+                }
+            });
+            
+            // Select address items
+            document.querySelectorAll('.address-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const address = this.dataset.address;
+                    addressInput.value = address;
+                    closeAddressModal();
+                    showMessage('Address selected', 'success');
+                });
+            });
+            
+            // Search addresses
+            addressSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                document.querySelectorAll('.address-item').forEach(item => {
+                    const address = item.dataset.address.toLowerCase();
+                    const text = item.textContent.toLowerCase();
+                    if (address.includes(searchTerm) || text.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Manual address input
+            confirmManualBtn.addEventListener('click', function() {
+                const manualAddress = manualInput.value.trim();
+                if (manualAddress) {
+                    addressInput.value = manualAddress;
+                    closeAddressModal();
+                    showMessage('Address entered manually', 'success');
+                } else {
+                    showMessage('Please enter an address', 'error');
+                }
+            });
+            
+            // Enter key for manual input
+            manualInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    confirmManualBtn.click();
+                }
+            });
+            
+            // GPS Location functionality
+            modalLocationBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    showMessage(
+                        currentLanguage === 'zh' ? '此浏览器不支持地理定位' : 'Geolocation is not supported by this browser', 
+                        'error'
+                    );
+                    return;
+                }
+                
+                // Show loading state with more detailed feedback
+                currentLocationText.innerHTML = `
+                    <span class="lang-text" data-lang="en">🔍 Searching for your location...</span>
+                    <span class="lang-text" data-lang="zh">🔍 正在搜索您的位置...</span>
+                `;
+                modalLocationBtn.disabled = true;
+                modalLocationBtn.style.opacity = '0.6';
+                
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        
+                        // Show address lookup phase
+                        currentLocationText.innerHTML = `
+                            <span class="lang-text" data-lang="en">📍 Found coordinates, looking up address...</span>
+                            <span class="lang-text" data-lang="zh">📍 已获取坐标，正在查询地址...</span>
+                        `;
+                        
+                        try {
+                            const locationAddress = await reverseGeocode(latitude, longitude);
+                            
+                            // Show success with preview
+                            currentLocationText.innerHTML = `
+                                <span class="lang-text" data-lang="en">✅ Address found!</span>
+                                <span class="lang-text" data-lang="zh">✅ 地址查询成功！</span>
+                            `;
+                            
+                            addressInput.value = locationAddress;
+                            
+                            // Show success message with address preview
+                            const shortAddress = locationAddress.length > 50 ? 
+                                locationAddress.substring(0, 50) + '...' : locationAddress;
+                            
+                            showMessage(
+                                currentLanguage === 'zh' ? 
+                                `地址已自动填入: ${shortAddress}` : 
+                                `Address populated: ${shortAddress}`, 
+                                'success'
+                            );
+                            
+                            setTimeout(() => {
+                                closeAddressModal();
+                            }, 800);
+                            
+                        } catch (error) {
+                            currentLocationText.innerHTML = `
+                                <span class="lang-text" data-lang="en">❌ Unable to find address</span>
+                                <span class="lang-text" data-lang="zh">❌ 无法查询到地址</span>
+                            `;
+                            showMessage(
+                                currentLanguage === 'zh' ? '地址查询失败，请手动输入' : 'Address lookup failed, please enter manually', 
+                                'error'
+                            );
+                        }
+                        
+                        modalLocationBtn.disabled = false;
+                        modalLocationBtn.style.opacity = '1';
+                        
+                        // Reset text after a delay
+                        setTimeout(() => {
+                            currentLocationText.innerHTML = `
+                                <span class="lang-text" data-lang="en">Click to get current location</span>
+                                <span class="lang-text" data-lang="zh">点击获取当前位置</span>
+                            `;
+                        }, 3000);
+                    },
+                    (error) => {
+                        let errorMessage = '';
+                        let errorMessageZh = '';
+                        
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = '❌ Location permission denied';
+                                errorMessageZh = '❌ 位置权限被拒绝';
+                                showMessage(
+                                    currentLanguage === 'zh' ? '请允许浏览器访问您的位置信息' : 'Please allow location access in your browser', 
+                                    'error'
+                                );
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = '❌ Location information unavailable';
+                                errorMessageZh = '❌ 位置信息不可用';
+                                showMessage(
+                                    currentLanguage === 'zh' ? '无法获取位置信息，请检查GPS设置' : 'Location unavailable, please check GPS settings', 
+                                    'error'
+                                );
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = '❌ Location request timeout';
+                                errorMessageZh = '❌ 位置请求超时';
+                                showMessage(
+                                    currentLanguage === 'zh' ? '位置请求超时，请重试' : 'Location request timeout, please try again', 
+                                    'error'
+                                );
+                                break;
+                            default:
+                                errorMessage = '❌ Location error occurred';
+                                errorMessageZh = '❌ 位置获取出错';
+                                showMessage(
+                                    currentLanguage === 'zh' ? '位置获取失败' : 'Failed to get location', 
+                                    'error'
+                                );
+                        }
+                        
+                        currentLocationText.innerHTML = `
+                            <span class="lang-text" data-lang="en">${errorMessage}</span>
+                            <span class="lang-text" data-lang="zh">${errorMessageZh}</span>
+                        `;
+                        
+                        modalLocationBtn.disabled = false;
+                        modalLocationBtn.style.opacity = '1';
+                        
+                        // Reset text after a delay
+                        setTimeout(() => {
+                            currentLocationText.innerHTML = `
+                                <span class="lang-text" data-lang="en">Click to get current location</span>
+                                <span class="lang-text" data-lang="zh">点击获取当前位置</span>
+                            `;
+                        }, 4000);
+                    },
+                    { 
+                        timeout: 15000, 
+                        enableHighAccuracy: true,
+                        maximumAge: 60000 // Cache location for 1 minute
+                    }
+                );
+            });
+            
+            // Update address options based on language
+            function updateAddressOptions(lang) {
+                const addressItems = document.querySelectorAll('.address-item');
+                
+                if (lang === 'en') {
+                    // English addresses for Australian cities
+                    const enAddresses = [
+                        { value: 'Sydney, NSW, Australia', display: 'Sydney', subtitle: 'New South Wales, Australia' },
+                        { value: 'Melbourne, VIC, Australia', display: 'Melbourne', subtitle: 'Victoria, Australia' },
+                        { value: 'Brisbane, QLD, Australia', display: 'Brisbane', subtitle: 'Queensland, Australia' },
+                        { value: 'Perth, WA, Australia', display: 'Perth', subtitle: 'Western Australia, Australia' },
+                        { value: 'Adelaide, SA, Australia', display: 'Adelaide', subtitle: 'South Australia, Australia' },
+                        { value: 'Canberra, ACT, Australia', display: 'Canberra', subtitle: 'Australian Capital Territory, Australia' },
+                        { value: 'Gold Coast, QLD, Australia', display: 'Gold Coast', subtitle: 'Queensland, Australia' },
+                        { value: 'Darwin, NT, Australia', display: 'Darwin', subtitle: 'Northern Territory, Australia' }
+                    ];
+                    
+                    addressItems.forEach((item, index) => {
+                        if (index < enAddresses.length) {
+                            item.dataset.address = enAddresses[index].value;
+                            const titleEl = item.querySelector('.font-medium');
+                            const subtitleEl = item.querySelector('.text-sm.text-tertiary');
+                            if (titleEl) titleEl.textContent = enAddresses[index].display;
+                            if (subtitleEl) subtitleEl.textContent = enAddresses[index].subtitle;
+                        }
+                    });
+                } else {
+                    // Chinese addresses for Australian cities
+                    const zhAddresses = [
+                        { value: '悉尼, 新南威尔士州, 澳大利亚', display: '悉尼', subtitle: '新南威尔士州, 澳大利亚' },
+                        { value: '墨尔本, 维多利亚州, 澳大利亚', display: '墨尔本', subtitle: '维多利亚州, 澳大利亚' },
+                        { value: '布里斯班, 昆士兰州, 澳大利亚', display: '布里斯班', subtitle: '昆士兰州, 澳大利亚' },
+                        { value: '珀斯, 西澳大利亚州, 澳大利亚', display: '珀斯', subtitle: '西澳大利亚州, 澳大利亚' },
+                        { value: '阿德莱德, 南澳大利亚州, 澳大利亚', display: '阿德莱德', subtitle: '南澳大利亚州, 澳大利亚' },
+                        { value: '堪培拉, 首都领地, 澳大利亚', display: '堪培拉', subtitle: '首都领地, 澳大利亚' },
+                        { value: '黄金海岸, 昆士兰州, 澳大利亚', display: '黄金海岸', subtitle: '昆士兰州, 澳大利亚' },
+                        { value: '达尔文, 北领地, 澳大利亚', display: '达尔文', subtitle: '北领地, 澳大利亚' }
+                    ];
+                    
+                    addressItems.forEach((item, index) => {
+                        if (index < zhAddresses.length) {
+                            item.dataset.address = zhAddresses[index].value;
+                            const titleEl = item.querySelector('.font-medium');
+                            const subtitleEl = item.querySelector('.text-sm.text-tertiary');
+                            if (titleEl) titleEl.textContent = zhAddresses[index].display;
+                            if (subtitleEl) subtitleEl.textContent = zhAddresses[index].subtitle;
+                        }
+                    });
+                }
+            }
+            
+            // Enhanced Reverse geocoding function
+            async function reverseGeocode(lat, lon) {
+                try {
+                    // First try with Nominatim API for detailed address
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1&accept-language=${currentLanguage === 'zh' ? 'zh' : 'en'}`,
+                        {
+                            headers: {
+                                'User-Agent': 'CovaU VPP Address Lookup'
+                            }
+                        }
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        if (data.address) {
+                            // Extract meaningful address components
+                            const addr = data.address;
+                            
+                            // Build a clean, user-friendly address
+                            let addressParts = [];
+                            
+                            // Street number and street name
+                            if (addr.house_number && addr.road) {
+                                addressParts.push(`${addr.house_number} ${addr.road}`);
+                            } else if (addr.road) {
+                                addressParts.push(addr.road);
+                            }
+                            
+                            // Suburb/Neighborhood
+                            if (addr.suburb) {
+                                addressParts.push(addr.suburb);
+                            } else if (addr.neighbourhood) {
+                                addressParts.push(addr.neighbourhood);
+                            }
+                            
+                            // City/Town
+                            if (addr.city) {
+                                addressParts.push(addr.city);
+                            } else if (addr.town) {
+                                addressParts.push(addr.town);
+                            } else if (addr.village) {
+                                addressParts.push(addr.village);
+                            }
+                            
+                            // State
+                            if (addr.state) {
+                                addressParts.push(addr.state);
+                            }
+                            
+                            // Country
+                            if (addr.country) {
+                                addressParts.push(addr.country);
+                            }
+                            
+                            // Postcode
+                            if (addr.postcode) {
+                                // Insert postcode before country
+                                if (addressParts.length > 0 && addr.country) {
+                                    addressParts.splice(-1, 0, addr.postcode);
+                                } else {
+                                    addressParts.push(addr.postcode);
+                                }
+                            }
+                            
+                            if (addressParts.length > 0) {
+                                return addressParts.join(', ');
+                            }
+                        }
+                        
+                        // Fallback to display_name if address parsing fails
+                        if (data.display_name) {
+                            return data.display_name;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Reverse geocoding error:', error);
+                }
+                
+                // Try alternative geocoding service if available
+                try {
+                    // Using a secondary service for better Australian address formatting
+                    const altResponse = await fetch(
+                        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${currentLanguage === 'zh' ? 'zh' : 'en'}`
+                    );
+                    
+                    if (altResponse.ok) {
+                        const altData = await altResponse.json();
+                        
+                        if (altData.locality || altData.city) {
+                            let altAddressParts = [];
+                            
+                            // Street and number
+                            if (altData.streetName) {
+                                if (altData.streetNumber) {
+                                    altAddressParts.push(`${altData.streetNumber} ${altData.streetName}`);
+                                } else {
+                                    altAddressParts.push(altData.streetName);
+                                }
+                            }
+                            
+                            // Locality/Suburb
+                            if (altData.locality && altData.locality !== altData.city) {
+                                altAddressParts.push(altData.locality);
+                            }
+                            
+                            // City
+                            if (altData.city) {
+                                altAddressParts.push(altData.city);
+                            }
+                            
+                            // State
+                            if (altData.principalSubdivision) {
+                                altAddressParts.push(altData.principalSubdivision);
+                            }
+                            
+                            // Postcode
+                            if (altData.postcode) {
+                                altAddressParts.push(altData.postcode);
+                            }
+                            
+                            // Country
+                            if (altData.countryName) {
+                                altAddressParts.push(altData.countryName);
+                            }
+                            
+                            if (altAddressParts.length > 0) {
+                                return altAddressParts.join(', ');
+                            }
+                        }
+                    }
+                } catch (altError) {
+                    console.error('Alternative geocoding error:', altError);
+                }
+                
+                // Final fallback - return a generic location message instead of coordinates
+                const locationName = currentLanguage === 'zh' ? '当前位置' : 'Current Location';
+                return `${locationName} (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+            }
+            
+            // Update address options when language changes
+            window.updateAddressOptions = updateAddressOptions;
+        }
+        
+        // Message display function
+        function showMessage(text, type = 'info') {
+            // Remove existing messages
+            const existingMsg = document.querySelector('.temp-message');
+            if (existingMsg) existingMsg.remove();
+            
+            const message = document.createElement('div');
+            message.className = `temp-message fixed top-20 right-4 z-50 px-4 py-2 rounded-lg text-white font-medium transition-opacity duration-300 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            message.textContent = text;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 300);
+            }, 2000);
+        }
+        
+        // 显示提交成功的详细信息
+        function showSubmissionSuccess(customerName, batteryBrand, address, isAuthorized) {
+            // 移除现有的成功消息
+            const existingSuccess = document.querySelector('.submission-success-modal');
+            if (existingSuccess) existingSuccess.remove();
+            
+            // 获取电池品牌文本
+            const brandText = batteryBrand && document.getElementById('batteryBrand').selectedIndex > 0 ? 
+                             document.getElementById('batteryBrand').options[document.getElementById('batteryBrand').selectedIndex].text : 
+                             (currentLanguage === 'zh' ? '未选择' : 'Not Selected');
+            
+            // 创建成功消息模态框
+            const successModal = document.createElement('div');
+            successModal.className = 'submission-success-modal fixed inset-0 bg-black/70 z-50 flex items-center justify-center';
+            
+            successModal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6 transform animate-pulse">
+                    <!-- 成功图标 -->
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 bg-success/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fa fa-check text-success text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-secondary mb-2">
+                            <span class="lang-text" data-lang="en">Submission Successful!</span>
+                            <span class="lang-text" data-lang="zh">提交成功！</span>
+                        </h3>
+                        <p class="text-sm text-tertiary">
+                            <span class="lang-text" data-lang="en">Your VPP authorization has been submitted</span>
+                            <span class="lang-text" data-lang="zh">您的VPP授权书已提交成功</span>
+                        </p>
+                    </div>
+                    
+                    <!-- 关键信息 -->
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center p-3 bg-light rounded-lg">
+                            <span class="text-sm text-secondary">
+                                <span class="lang-text" data-lang="en">Customer:</span>
+                                <span class="lang-text" data-lang="zh">客户姓名：</span>
+                            </span>
+                            <span class="font-medium text-sm">${customerName || '--'}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-light rounded-lg">
+                            <span class="text-sm text-secondary">
+                                <span class="lang-text" data-lang="en">Battery Brand:</span>
+                                <span class="lang-text" data-lang="zh">电池品牌：</span>
+                            </span>
+                            <span class="font-medium text-sm">${brandText}</span>
+                        </div>
+                        <div class="flex justify-between items-start p-3 bg-light rounded-lg">
+                            <span class="text-sm text-secondary">
+                                <span class="lang-text" data-lang="en">Address:</span>
+                                <span class="lang-text" data-lang="zh">地址：</span>
+                            </span>
+                            <span class="font-medium text-sm text-right max-w-[60%]" style="word-break: break-all;">${address || '--'}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-light rounded-lg">
+                            <span class="text-sm text-secondary">
+                                <span class="lang-text" data-lang="en">Status:</span>
+                                <span class="lang-text" data-lang="zh">状态：</span>
+                            </span>
+                            <span class="font-medium text-sm ${isAuthorized ? 'text-success' : 'text-danger'}">
+                                ${isAuthorized ? 
+                                    (currentLanguage === 'zh' ? '已授权' : 'Authorized') : 
+                                    (currentLanguage === 'zh' ? '未授权' : 'Unauthorized')
+                                }
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-light rounded-lg">
+                            <span class="text-sm text-secondary">
+                                <span class="lang-text" data-lang="en">Time:</span>
+                                <span class="lang-text" data-lang="zh">时间：</span>
+                            </span>
+                            <span class="font-medium text-sm">${new Date().toLocaleString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US')}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 进度指示 -->
+                    <div class="text-center text-xs text-tertiary">
+                        <span class="lang-text" data-lang="en">Preparing authorization document...</span>
+                        <span class="lang-text" data-lang="zh">正在准备授权书文档...</span>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(successModal);
+            
+            // 2.5秒后自动移除
+            setTimeout(() => {
+                successModal.style.opacity = '0';
+                setTimeout(() => {
+                    if (successModal.parentNode) {
+                        successModal.remove();
+                    }
+                }, 300);
+            }, 2200);
+        }
+        
+        function toggleInstallerSection() {
+            const checkbox = document.getElementById('requiresInstaller');
+            const section = document.getElementById('installerSection');
+            
+            if (checkbox.checked) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+        
+        
+
+        
+
+        // 显示提交成功页面
+        function showSubmissionSuccessPage(data) {
+            const submissionPage = document.getElementById('submission-success-page');
+            const detailContent = document.getElementById('submission-detail-content');
+            
+            // 生成详细内容
+            detailContent.innerHTML = `
+                <!-- 提交状态 -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 font-semibold text-lg">
+                        <i class="fa fa-clock mr-2"></i>
+                        <span class="lang-text" data-lang="en">Pending Authorization</span>
+                        <span class="lang-text" data-lang="zh">待授权</span>
+                    </div>
+                    <div class="text-sm text-tertiary mt-2">
+                        <span class="lang-text" data-lang="en">Submit Time:</span>
+                        <span class="lang-text" data-lang="zh">提交时间:</span>
+                        ${new Date(data.submitTime).toLocaleString(currentLanguage === 'zh' ? 'zh-CN' : 'en-US')}
+                    </div>
+                </div>
+                
+                <div class="space-y-8">
+                    <!-- 客户详情 -->
+                    <div>
+                        <h2 class="section-title">
+                            <span class="lang-text" data-lang="en">Customer Details</span>
+                            <span class="lang-text" data-lang="zh">客户详情</span>
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Customer Name</span>
+                                    <span class="lang-text" data-lang="zh">客户姓名</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.customerName || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Mobile</span>
+                                    <span class="lang-text" data-lang="zh">手机号码</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.mobile || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Email</span>
+                                    <span class="lang-text" data-lang="zh">邮箱地址</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.email || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">NMI</span>
+                                    <span class="lang-text" data-lang="zh">NMI编号</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.nmi || '--'}</div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Supply Address</span>
+                                    <span class="lang-text" data-lang="zh">供电地址</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.supplyAddress || '--'}${data.addressDetails ? ', ' + data.addressDetails : ''}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统详情 -->
+                    <div>
+                        <h2 class="section-title">
+                            <span class="lang-text" data-lang="en">System Details</span>
+                            <span class="lang-text" data-lang="zh">系统详情</span>
+                        </h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Battery Brand</span>
+                                    <span class="lang-text" data-lang="zh">电池品牌</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.batteryBrand || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Battery Size</span>
+                                    <span class="lang-text" data-lang="zh">电池容量</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.batterySize || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">User Name</span>
+                                    <span class="lang-text" data-lang="zh">用户名</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.batteryAccount || '--'}</div>
+                            </div>
+                            <div>
+                                <label class="label-apple">
+                                    <span class="lang-text" data-lang="en">Inverter SN</span>
+                                    <span class="lang-text" data-lang="zh">逆变器序列号</span>
+                                </label>
+                                <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${data.inverterSN || '--'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 签名信息 -->
+                    <div>
+                        <h2 class="section-title">
+                            <span class="lang-text" data-lang="en">Customer Signature</span>
+                            <span class="lang-text" data-lang="zh">客户签名</span>
+                        </h2>
+                        <div class="w-1/2">
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Signature</span>
+                                <span class="lang-text" data-lang="zh">签名</span>
+                            </label>
+                            <div class="bg-white rounded-lg border-2 border-gray-300 h-32 flex flex-col items-center justify-center p-4 relative">
+                                <div class="flex flex-col items-center justify-center h-full w-full">
+                                    <!-- 模拟签名 -->
+                                    <div class="text-2xl font-bold text-blue-800 mb-2" style="font-family: cursive; transform: rotate(-2deg);">
+                                        ${data.customerName || 'Customer Name'}
+                                    </div>
+                                    <!-- 签名日期 -->
+                                    <div class="text-sm text-gray-600">
+                                        ${data.signatureDate || new Date().toISOString().split('T')[0]}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 显示提交成功页面
+            submissionPage.classList.remove('hidden');
+            
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 编辑提交功能
+        function initEditSubmissionFunction() {
+            const editSubmissionBtn = document.getElementById('edit-submission-btn');
+            
+            if (editSubmissionBtn) {
+                editSubmissionBtn.addEventListener('click', function() {
+                    // 获取保存的数据
+                    const savedData = localStorage.getItem('vpp-form-data');
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        
+                        // 恢复表单数据
+                        document.getElementById('customerName').value = data.customerName || '';
+                        document.getElementById('mobile').value = data.mobile || '';
+                        document.getElementById('email').value = data.email || '';
+                        document.getElementById('nmi').value = data.nmi || '';
+                        document.getElementById('supplyAddress').value = data.supplyAddress || '';
+                        document.getElementById('addressDetails').value = data.addressDetails || '';
+                        document.getElementById('batteryBrand').value = data.batteryBrand || '';
+                        document.getElementById('batterySize').value = data.batterySize || '';
+                        document.getElementById('batteryAccount').value = data.batteryAccount || '';
+                        document.getElementById('inverterSN').value = data.inverterSN || '';
+                        document.getElementById('signatureDate').value = data.signatureDate || new Date().toISOString().split('T')[0];
+                        
+                        // 恢复签名
+                        if (data.signature && customerSignaturePad) {
+                            customerSignaturePad.fromDataURL(data.signature);
+                        }
+                        
+                        // 重新启用表单元素
+                        const formElements = document.querySelectorAll('#vpp-authorization-form input, #vpp-authorization-form select, #vpp-authorization-form textarea, #vpp-authorization-form button[type="submit"]');
+                        formElements.forEach(element => {
+                            element.disabled = false;
+                        });
+                        
+                        // 恢复提交按钮原始状态
+                        const submitBtn = document.querySelector('#vpp-authorization-form button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.innerHTML = `
+                                <span class="lang-text" data-lang="en">Submit</span>
+                                <span class="lang-text" data-lang="zh">提交</span>
+                                <i class="fa fa-check"></i>
+                            `;
+                            submitBtn.classList.remove('bg-green-600');
+                            submitBtn.classList.add('bg-black', 'btn-black');
+                        }
+                    }
+                    
+                    // 隐藏提交成功页面，显示表单
+                    const submissionPage = document.getElementById('submission-success-page');
+                    const formContainer = document.getElementById('form-container');
+                    
+                    submissionPage.classList.add('hidden');
+                    formContainer.classList.remove('hidden');
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        }
+        
+        // 表单提交处理
+        function handleFormSubmit() {
+            const form = document.getElementById('vpp-authorization-form');
+            const formContainer = document.getElementById('form-container');
+            const editBtn = document.getElementById('edit-btn');
+            
+            console.log('handleFormSubmit被调用');
+            console.log('form element:', form);
+            
+            if (!form) {
+                console.error('找不到表单元素');
+                return;
+            }
+
+            // 表单提交处理
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // 阻止默认提交
+                
+                // 收集表单数据
+                const formData = {
+                    customerName: document.getElementById('customerName').value.trim(),
+                    mobile: document.getElementById('mobile').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    nmi: document.getElementById('nmi').value.trim(),
+                    supplyAddress: document.getElementById('supplyAddress').value,
+                    addressDetails: document.getElementById('addressDetails').value.trim(),
+                    batteryBrand: document.getElementById('batteryBrand').value,
+                    batterySize: document.getElementById('batterySize').value.trim(),
+                    batteryAccount: document.getElementById('batteryAccount').value.trim(),
+                    inverterSN: document.getElementById('inverterSN').value.trim(),
+                    signatureDate: document.getElementById('signatureDate').value,
+                    signature: (customerSignaturePad && !customerSignaturePad.isEmpty()) ? customerSignaturePad.toDataURL() : null,
+                    submitTime: new Date().toISOString(),
+                    status: 'submitted'
+                };
+                
+                // 保存到localStorage
+                localStorage.setItem('vpp-form-data', JSON.stringify(formData));
+                
+                // 隐藏表单页面
+                formContainer.classList.add('hidden');
+                
+                // 显示提交成功页面
+                showSubmissionSuccessPage(formData);
+            });
+            
+            // 修改按钮点击事件
+            if (editBtn) {
+                editBtn.addEventListener('click', function() {
+                    // 获取保存的数据并恢复表单
+                    const savedData = localStorage.getItem('vpp-form-data');
+                    if (savedData) {
+                        const data = JSON.parse(savedData);
+                        
+                        // 恢复表单数据（跳过--值）
+                        document.getElementById('customerName').value = data.customerName || '';
+                        document.getElementById('mobile').value = data.mobile || '';
+                        document.getElementById('email').value = data.email || '';
+                        document.getElementById('nmi').value = data.nmi || '';
+                        document.getElementById('supplyAddress').value = data.supplyAddress || '';
+                        document.getElementById('addressDetails').value = data.addressDetails || '';
+                        document.getElementById('batteryBrand').value = data.batteryBrand || '';
+                        document.getElementById('batterySize').value = data.batterySize || '';
+                        document.getElementById('batteryAccount').value = data.batteryAccount || '';
+                        document.getElementById('inverterSN').value = data.inverterSN || '';
+                        document.getElementById('signatureDate').value = data.signatureDate || new Date().toISOString().split('T')[0];
+                        
+                        // 恢复签名
+                        if (data.signature && customerSignaturePad) {
+                            customerSignaturePad.fromDataURL(data.signature);
+                        }
+                    }
+                    
+                    // 切换显示
+                    formContainer.classList.remove('hidden');
+                    
+                    // 滚动到顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
+        }
+        
+        
+        // Initialize language dropdown functionality
+        function initLanguageDropdown() {
+            const dropdownBtn = document.getElementById('language-dropdown-btn');
+            const dropdown = document.getElementById('language-dropdown');
+            
+            // Toggle dropdown on button click
+            dropdownBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#language-dropdown-btn') && !e.target.closest('#language-dropdown')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Auto-resize signature canvases
+        function resizeCanvas(canvas) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
+        
+        window.addEventListener('resize', function() {
+            resizeCanvas(document.getElementById('customerSignature'), customerSignaturePad);
+        });
+        
+        // 场景计数器
+        let currentScenarioIndex = 0;
+        
+        // 存储当前查询结果
+        let currentQueryResults = [];
+        
+        // 初始化查询功能
+        function initQueryFunction() {
+            const queryBtn = document.getElementById('query-btn');
+            const backBtn = document.getElementById('back-btn');
+            const doQueryBtn = document.getElementById('do-query-btn');
+            const queryEmailInput = document.getElementById('query-email');
+            const queryMobileInput = document.getElementById('query-mobile');
+            const queryResult = document.getElementById('query-result');
+            const queryResultContent = document.getElementById('query-result-content');
+            const noDataMessage = document.getElementById('no-data-message');
+            const querySuccessMessage = document.getElementById('query-success-message');
+            const queryPage = document.getElementById('query-page');
+            const formContainer = document.getElementById('form-container');
+            
+            // 记录来源页面的变量
+            let previousPage = 'form';
+            
+            // 点击查询按钮，切换到查询页面
+            queryBtn.addEventListener('click', function() {
+                // 记录当前显示的页面
+                const submissionPage = document.getElementById('submission-success-page');
+                if (submissionPage && !submissionPage.classList.contains('hidden')) {
+                    previousPage = 'submission';
+                    submissionPage.classList.add('hidden');
+                } else {
+                    previousPage = 'form';
+                    formContainer.classList.add('hidden');
+                }
+                
+                // 显示查询页面
+                queryPage.classList.remove('hidden');
+                
+                // 重置查询表单
+                queryEmailInput.value = '';
+                queryMobileInput.value = '';
+                queryResult.classList.add('hidden');
+                noDataMessage.classList.add('hidden');
+                querySuccessMessage.classList.add('hidden');
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // 返回按钮
+            backBtn.addEventListener('click', function() {
+                queryPage.classList.add('hidden');
+                
+                // 根据记录的来源页面返回
+                const submissionPage = document.getElementById('submission-success-page');
+                if (previousPage === 'submission' && submissionPage) {
+                    submissionPage.classList.remove('hidden');
+                } else {
+                    formContainer.classList.remove('hidden');
+                }
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // 执行查询 - 直接切换场景，无需验证输入
+            doQueryBtn.addEventListener('click', function() {
+                // 获取当前场景的模拟查询结果
+                const mockResults = generateMockQueryResults();
+                
+                // 存储当前查询结果
+                currentQueryResults = mockResults;
+                
+                // 显示查询结果
+                if (mockResults.length > 0) {
+                    // 显示查询成功消息
+                    querySuccessMessage.classList.remove('hidden');
+                    noDataMessage.classList.add('hidden');
+                    
+                    // 排序结果：pending (授权中) 在前，authorized (已授权) 在后
+                    const sortedResults = [...mockResults].sort((a, b) => {
+                        const statusOrder = { pending: 1, authorized: 2, rejected: 3, withdrawn: 4 };
+                        return (statusOrder[a.status] || 5) - (statusOrder[b.status] || 5);
+                    });
+                    
+                    // 构建查询结果内容
+                    queryResultContent.innerHTML = '';
+                    
+                    sortedResults.forEach((result, index) => {
+                        const resultCard = createQueryResultCard(result, index);
+                        queryResultContent.appendChild(resultCard);
+                    });
+                    
+                    queryResult.classList.remove('hidden');
+                    
+                } else {
+                    // 显示无数据消息
+                    querySuccessMessage.classList.add('hidden');
+                    noDataMessage.classList.remove('hidden');
+                    queryResult.classList.add('hidden');
+                }
+                
+                // 切换到下一个场景
+                currentScenarioIndex = (currentScenarioIndex + 1) % 5;
+            });
+        }
+        
+        // 显示记录详情
+        function showRecordDetail(recordId) {
+            const result = currentQueryResults.find(r => r.id === recordId);
+            if (!result) return;
+            
+            const queryPage = document.getElementById('query-page');
+            const detailPage = document.getElementById('query-detail-page');
+            const detailContent = document.getElementById('detail-content');
+            const detailBackBtn = document.getElementById('detail-back-btn');
+            
+            // 状态样式映射
+            const statusStyles = {
+                authorized: { color: 'text-success', bg: 'bg-success/10', label: { en: 'Authorized', zh: '已授权' } },
+                pending: { color: 'text-yellow-700', bg: 'bg-yellow-100', label: { en: 'Pending Authorization', zh: '待授权' } },
+                rejected: { color: 'text-danger', bg: 'bg-danger/10', label: { en: 'Rejected', zh: '已驳回' } },
+                withdrawn: { color: 'text-gray-600', bg: 'bg-gray-100', label: { en: 'Exited', zh: '已退出' } }
+            };
+            
+            const statusInfo = statusStyles[result.status];
+            const statusLabel = statusInfo.label[currentLanguage] || statusInfo.label.en;
+            
+            // 生成详细内容
+            detailContent.innerHTML = `
+                <!-- 授权状态 -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full ${statusInfo.bg} ${statusInfo.color} font-semibold text-lg">
+                        ${statusLabel}
+                    </div>
+                    <div class="text-sm text-tertiary mt-2">
+                        <span class="lang-text" data-lang="en">Submit Time:</span>
+                        <span class="lang-text" data-lang="zh">提交时间:</span>
+                        ${result.submitTime}
+                    </div>
+                </div>
+                
+                <div class="space-y-8">
+                    <!-- 客户详情 -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="lang-text" data-lang="en">Customer Details</span>
+                        <span class="lang-text" data-lang="zh">客户详情</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Customer Name</span>
+                                <span class="lang-text" data-lang="zh">客户姓名</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.customerName || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Mobile</span>
+                                <span class="lang-text" data-lang="zh">手机号码</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.mobile || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Email</span>
+                                <span class="lang-text" data-lang="zh">邮箱地址</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.email || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">NMI</span>
+                                <span class="lang-text" data-lang="zh">NMI编号</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.nmi || '--'}</div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Supply Address</span>
+                                <span class="lang-text" data-lang="zh">供电地址</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.supplyAddress || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统详情 -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="lang-text" data-lang="en">System Details</span>
+                        <span class="lang-text" data-lang="zh">系统详情</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Brand</span>
+                                <span class="lang-text" data-lang="zh">电池品牌</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.batteryBrand || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Account</span>
+                                <span class="lang-text" data-lang="zh">户头</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.batteryAccount || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Inverter SN</span>
+                                <span class="lang-text" data-lang="zh">逆变器序列号</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.inverterSN || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Battery Capacity (Ah)</span>
+                                <span class="lang-text" data-lang="zh">电池容量</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.batterySize || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 安装工详情 -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="lang-text" data-lang="en">Installer Details</span>
+                        <span class="lang-text" data-lang="zh">安装工详情</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Installer Name</span>
+                                <span class="lang-text" data-lang="zh">安装工姓名</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.installerName || '--'}</div>
+                        </div>
+                        <div>
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Company Name</span>
+                                <span class="lang-text" data-lang="zh">公司名称</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.installerCompany || '--'}</div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">License Number</span>
+                                <span class="lang-text" data-lang="zh">执照编号</span>
+                            </label>
+                            <div class="font-medium text-lg border-b border-dashed border-gray-400 pb-1 min-h-[2rem]">${result.installerLicense || '--'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 签名信息 -->
+                <div>
+                    <h2 class="section-title">
+                        <span class="lang-text" data-lang="en">Signature Information</span>
+                        <span class="lang-text" data-lang="zh">签名信息</span>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- 客户签名 -->
+                        <div class="w-1/2">
+                            <label class="label-apple">
+                                <span class="lang-text" data-lang="en">Customer Signature</span>
+                                <span class="lang-text" data-lang="zh">客户签名</span>
+                            </label>
+                            <div class="bg-white rounded-lg border-2 border-gray-300 h-32 flex flex-col items-center justify-center p-4 relative">
+                                ${result.customerSignature ? 
+                                    `<div class="flex flex-col items-center justify-center h-full w-full">
+                                        <div class="text-2xl font-bold text-blue-800 mb-2" style="font-family: cursive; transform: rotate(-2deg);">
+                                            ${result.customerName}
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            ${result.signatureDate || '--'}
+                                        </div>
+                                    </div>`
+                                    : `<span class="text-gray-400">--</span>`}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div id="detail-action-buttons" class="flex justify-center pt-6 border-t border-gray-200">
+                    ${createActionButtonsForDetail(result)}
+                </div>
+            `;
+            
+            // 设置返回按钮事件
+            detailBackBtn.onclick = function() {
+                detailPage.classList.add('hidden');
+                queryPage.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            
+            // 隐藏查询页面，显示详情页面
+            queryPage.classList.add('hidden');
+            detailPage.classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 为详情页面创建操作按钮
+        function createActionButtonsForDetail(result) {
+            // 检查是否是第5种场景（有2个记录）
+            const isScenario5 = currentQueryResults.length === 2;
+            
+            switch (result.status) {
+                case 'pending': // 授权中 - 显示编辑按钮
+                    return `
+                        <button onclick="editRecord(${result.id})" class="btn-black px-6 py-2 flex items-center gap-2">
+                            <i class="fa fa-edit"></i>
+                            <span class="lang-text" data-lang="en">Edit</span>
+                            <span class="lang-text" data-lang="zh">编辑</span>
+                        </button>
+                    `;
+                case 'authorized': // 已授权 - 在第5种场景中不显示编辑按钮，其他场景显示
+                    if (isScenario5) {
+                        return ''; // 第5种场景中已授权的记录没有编辑按钮
+                    } else {
+                        return `
+                            <button onclick="editRecord(${result.id})" class="btn-black px-6 py-2 flex items-center gap-2">
+                                <i class="fa fa-edit"></i>
+                                <span class="lang-text" data-lang="en">Edit</span>
+                                <span class="lang-text" data-lang="zh">编辑</span>
+                            </button>
+                        `;
+                    }
+                case 'rejected': // 已驳回 - 显示重新提交按钮
+                    return `
+                        <button onclick="resubmitRecord(${result.id})" class="btn-black px-6 py-2 flex items-center gap-2">
+                            <i class="fa fa-refresh"></i>
+                            <span class="lang-text" data-lang="en">Resubmit</span>
+                            <span class="lang-text" data-lang="zh">重新提交</span>
+                        </button>
+                    `;
+                case 'withdrawn': // 已退出 - 不显示任何按钮
+                    return '';
+                default:
+                    return '';
+            }
+        }
+        
+        // 编辑记录 - 带记录数据返回到表单页面
+        function editRecord(recordId) {
+            const result = currentQueryResults.find(r => r.id === recordId);
+            if (!result) return;
+            
+            // 这里可以将数据填充到表单中
+            // 目前简单提示用户
+            alert(`${currentLanguage === 'zh' ? '编辑功能：将返回表单并填充当前数据' : 'Edit function: Will return to form with current data'}`);
+            
+            // 实际实现时，可以将数据存储到localStorage或直接填充表单
+            // localStorage.setItem('editingRecord', JSON.stringify(result));
+            
+            // 返回到主表单页面
+            const detailPage = document.getElementById('query-detail-page');
+            const queryPage = document.getElementById('query-page');
+            
+            detailPage.classList.add('hidden');
+            queryPage.classList.add('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 重新提交记录 - 与编辑功能相同的交互
+        function resubmitRecord(recordId) {
+            const result = currentQueryResults.find(r => r.id === recordId);
+            if (!result) return;
+            
+            // 重新提交功能与编辑功能交互一样
+            alert(`${currentLanguage === 'zh' ? '重新提交功能：将返回表单并填充当前数据' : 'Resubmit function: Will return to form with current data'}`);
+            
+            // 返回到主表单页面
+            const detailPage = document.getElementById('query-detail-page');
+            const queryPage = document.getElementById('query-page');
+            
+            detailPage.classList.add('hidden');
+            queryPage.classList.add('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 生成模拟签名
+        function generateSimulatedSignature(name, width = 300, height = 120) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布背景为透明
+            ctx.clearRect(0, 0, width, height);
+            
+            // 设置签名样式
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // 根据名字生成不同的签名样式
+            const nameHash = name.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const startX = 20 + (nameHash % 30);
+            const startY = height / 2 + (nameHash % 20 - 10);
+            
+            ctx.beginPath();
+            // 生成模拟的手写签名路径
+            for (let i = 0; i < name.length; i++) {
+                const charCode = name.charCodeAt(i);
+                const x = startX + i * 25 + Math.sin(i * 0.5) * 10;
+                const y = startY + Math.sin(i * 0.8) * 15 + (charCode % 20 - 10);
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.quadraticCurveTo(x - 10, y - 5, x, y);
+                }
+            }
+            
+            // 添加一些装饰性的笔画
+            ctx.moveTo(startX, startY + 20);
+            ctx.quadraticCurveTo(startX + name.length * 15, startY + 10, startX + name.length * 20, startY + 25);
+            
+            ctx.stroke();
+            
+            return canvas.toDataURL('image/png');
+        }
+
+        // 生成模拟查询结果
+        function generateMockQueryResults() {
+            // 模拟不同的查询结果情况 - 根据要求的5种场景
+            const scenarios = [
+                // 情况1: 1个授权书，状态：授权中，详情里面有编辑按钮
+                [{ 
+                    id: 1, 
+                    customerName: 'Jane Smith', 
+                    email: 'jane.smith@example.com', 
+                    mobile: '+61400654321', 
+                    nmi: 'NMI654321',
+                    supplyAddress: 'Melbourne, VIC, Australia',
+                    batteryBrand: 'LG Chem',
+                    batterySize: '80Ah',
+                    batteryAccount: 'BAT002',
+                    inverterSN: 'FR67890',
+                    customerSignature: true,
+                    signatureDate: '2025-09-05',
+                    installerName: 'Mark Davis',
+                    installerCompany: 'Energy Solutions',
+                    installerLicense: 'LIC789012',
+                    status: 'pending', 
+                    submitTime: '2025/9/5 08:58:40'
+                }],
+                
+                // 情况2: 1个授权书，状态：已授权，详情里面有编辑按钮
+                [{ 
+                    id: 2, 
+                    customerName: 'John Doe', 
+                    email: 'john.doe@example.com', 
+                    mobile: '+61400123456', 
+                    nmi: 'NMI123456',
+                    supplyAddress: 'Sydney, NSW, Australia',
+                    batteryBrand: 'Tesla Powerwall',
+                    batterySize: '100Ah',
+                    batteryAccount: 'BAT001',
+                    inverterSN: 'SE12345',
+                    customerSignature: true,
+                    signatureDate: '2025-09-05',
+                    installerName: 'Tom Wilson',
+                    installerCompany: 'Solar Pro',
+                    installerLicense: 'LIC123456',
+                    status: 'authorized', 
+                    submitTime: '2025/9/5 08:58:40'
+                }],
+                
+                // 情况3: 1个授权书，状态：已驳回，详情里面编辑按钮变为重新提交
+                [{ 
+                    id: 3, 
+                    customerName: 'Sarah Brown', 
+                    email: 'sarah.brown@example.com', 
+                    mobile: '+61400345678', 
+                    nmi: 'NMI345678',
+                    supplyAddress: 'Perth, WA, Australia',
+                    batteryBrand: 'Sonnen',
+                    batterySize: '120Ah',
+                    batteryAccount: 'BAT005',
+                    inverterSN: 'GW33333',
+                    customerSignature: true,
+                    signatureDate: '2025-09-05',
+                    installerName: 'Lisa Wang',
+                    installerCompany: 'Wang Solar',
+                    installerLicense: 'LIC333333',
+                    status: 'rejected', 
+                    submitTime: '2025/9/5 08:58:40',
+                    rejectReason: '文件不完整'
+                }],
+                
+                // 情况4: 1个授权书，状态：已退出，详情里面没有按钮
+                [{ 
+                    id: 4, 
+                    customerName: 'David Wilson', 
+                    email: 'david.wilson@example.com', 
+                    mobile: '+61400567890', 
+                    nmi: 'NMI567890',
+                    supplyAddress: 'Adelaide, SA, Australia',
+                    batteryBrand: 'Alpha ESS',
+                    batterySize: '90Ah',
+                    batteryAccount: 'BAT006',
+                    inverterSN: 'GR44444',
+                    customerSignature: true,
+                    signatureDate: '2025-09-05',
+                    installerName: 'Chris Lee',
+                    installerCompany: 'Lee Energy',
+                    installerLicense: 'LIC444444',
+                    status: 'withdrawn', 
+                    submitTime: '2025/9/5 08:58:40',
+                    withdrawTime: '2025/9/1 14:15:20'
+                }],
+                
+                // 情况5: 2个授权书，一个是授权中（有编辑按钮），一个是已授权（没有编辑按钮）
+                [
+                    { 
+                        id: 5, 
+                        customerName: 'Mike Johnson', 
+                        email: 'mike.j@example.com', 
+                        mobile: '+61400789012', 
+                        nmi: 'NMI789012',
+                        supplyAddress: 'Brisbane, QLD, Australia',
+                        batteryBrand: 'BYD',
+                        batterySize: '75Ah',
+                        batteryAccount: 'BAT004',
+                        inverterSN: 'HW22222',
+                        customerSignature: true,
+                        signatureDate: '2025-09-05',
+                        installerName: 'Paul Miller',
+                        installerCompany: 'Miller Solar',
+                        installerLicense: 'LIC222222',
+                        status: 'pending', 
+                        submitTime: '2025/9/5 08:58:40'
+                    },
+                    { 
+                        id: 6, 
+                        customerName: 'Mike Johnson', 
+                        email: 'mike.j@example.com', 
+                        mobile: '+61400789012', 
+                        nmi: 'NMI789013',
+                        supplyAddress: 'Brisbane, QLD, Australia',
+                        batteryBrand: 'Enphase',
+                        batterySize: '50Ah',
+                        batteryAccount: 'BAT003',
+                        inverterSN: 'SMA11111',
+                        customerSignature: true,
+                        signatureDate: '2025-09-05',
+                        installerName: 'Alex Green',
+                        installerCompany: 'Green Energy',
+                        installerLicense: 'LIC111111',
+                        status: 'authorized', 
+                        submitTime: '2025/9/5 08:58:40'
+                    }
+                ]
+            ];
+            
+            // 返回当前场景索引对应的结果
+            return scenarios[currentScenarioIndex];
+        }
+        
+        // 创建查询结果卡片 - 显示完整信息，与提交内容一致
+        function createQueryResultCard(result, index) {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-gray-100 rounded-xl p-4 mb-4';
+            
+            // 状态样式映射
+            const statusStyles = {
+                authorized: { color: 'text-success', bg: 'bg-success/10', label: { en: 'Authorized', zh: '已授权' } },
+                pending: { color: 'text-yellow-700', bg: 'bg-yellow-100', label: { en: 'Pending Authorization', zh: '待授权' } },
+                rejected: { color: 'text-danger', bg: 'bg-danger/10', label: { en: 'Rejected', zh: '已驳回' } },
+                withdrawn: { color: 'text-gray-600', bg: 'bg-gray-100', label: { en: 'Exited', zh: '已退出' } }
+            };
+            
+            const statusInfo = statusStyles[result.status];
+            const statusLabel = statusInfo.label[currentLanguage] || statusInfo.label.en;
+            
+            card.innerHTML = `
+                <div class="space-y-3">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-tertiary">
+                                <span class="lang-text" data-lang="en">Customer Name</span>
+                                <span class="lang-text" data-lang="zh">客户姓名</span>
+                            </span>
+                            <span class="text-sm text-secondary font-medium">${result.customerName}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-tertiary">NMI</span>
+                            <span class="text-sm text-secondary">${result.nmi}</span>
+                        </div>
+                        <div class="flex justify-between items-start">
+                            <span class="text-sm text-tertiary">
+                                <span class="lang-text" data-lang="en">Address</span>
+                                <span class="lang-text" data-lang="zh">地址</span>
+                            </span>
+                            <span class="text-sm text-secondary text-right flex-1 ml-2">${result.supplyAddress}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-tertiary">
+                                <span class="lang-text" data-lang="en">Submit Time</span>
+                                <span class="lang-text" data-lang="zh">提交时间</span>
+                            </span>
+                            <span class="text-sm text-secondary">${result.submitTime}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-tertiary">
+                                <span class="lang-text" data-lang="en">Status</span>
+                                <span class="lang-text" data-lang="zh">状态</span>
+                            </span>
+                            <span class="text-sm px-2 py-1 rounded-full ${statusInfo.bg} ${statusInfo.color}">
+                                ${statusLabel}
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="showRecordDetail(${result.id})" class="w-full mt-3 px-4 py-2 border-2 border-black text-black bg-white rounded-full font-medium hover:bg-black hover:text-white transition-colors duration-200">
+                        <span class="lang-text" data-lang="en">View Details</span>
+                        <span class="lang-text" data-lang="zh">查看详情</span>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // 创建操作按钮
+        function createActionButtons(result) {
+            switch (result.status) {
+                case 'authorized':
+                case 'pending':
+                    return `
+                        <button onclick="editRecord(${result.id})" class="flex-1 bg-secondary text-white font-medium py-2.5 px-4 rounded-full shadow-sm transition-all duration-200 hover:bg-secondary/90 active:bg-secondary/80 flex justify-center items-center gap-2">
+                            <i class="fa fa-pencil"></i>
+                            <span class="lang-text" data-lang="en">Edit</span>
+                            <span class="lang-text" data-lang="zh">编辑</span>
+                        </button>
+                    `;
+                case 'rejected':
+                    return `
+                        <button onclick="resubmitRecord(${result.id})" class="flex-1 bg-secondary text-white font-medium py-2.5 px-4 rounded-full shadow-sm transition-all duration-200 hover:bg-secondary/90 active:bg-secondary/80 flex justify-center items-center gap-2">
+                            <i class="fa fa-refresh"></i>
+                            <span class="lang-text" data-lang="en">Resubmit</span>
+                            <span class="lang-text" data-lang="zh">重新提交</span>
+                        </button>
+                    `;
+                case 'withdrawn':
+                default:
+                    return '';
+            }
+        }
+        
+        // 编辑记录
+        function editRecord(recordId) {
+            // 返回到主表单页面进行编辑
+            const queryPage = document.getElementById('query-page');
+            
+            queryPage.classList.add('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 重新提交记录
+        function resubmitRecord(recordId) {
+            // 跳转到第一步进行重新提交
+            editRecord(recordId);
+        }
+
+        // 图片预加载缓存
+        const imageCache = new Map();
+        
+        // 预加载所有提示图片
+        function preloadHintImages() {
+            const imagesToPreload = ['账号.jpg', '逆变器SN.jpg', '电池SN.jpg', '电池容量.jpg'];
+            imagesToPreload.forEach(src => {
+                if (!imageCache.has(src)) {
+                    const img = new Image();
+                    img.onload = () => imageCache.set(src, img);
+                    img.onerror = () => console.warn(`Failed to preload image: ${src}`);
+                    img.src = src;
+                }
+            });
+        }
+        
+        // 打开提示模态框
+        function openHintModal(type) {
+            const modal = document.getElementById('hintModal');
+            const modalImage = document.getElementById('modalImage');
+            const imageLoader = document.getElementById('imageLoader');
+            
+            // 根据类型设置图片路径和标题
+            const imageMap = {
+                'account': {
+                    src: '账号.jpg',
+                    title: { 
+                        en: 'Account Location Example', 
+                        zh: '账号位置示例' 
+                    }
+                },
+                'inverterSN': {
+                    src: '逆变器SN.jpg',
+                    title: { 
+                        en: 'Inverter SN Location Example', 
+                        zh: '逆变器SN位置示例' 
+                    }
+                },
+                'batteryCapacity': {
+                    src: '电池容量.jpg',
+                    title: { 
+                        en: 'Battery Capacity Location Example', 
+                        zh: '电池容量位置示例' 
+                    }
+                }
+            };
+            
+            if (imageMap[type]) {
+                const imageSrc = imageMap[type].src;
+                
+                // 更新标题
+                const titleEn = document.querySelector('#modalTitle .lang-text[data-lang="en"]');
+                const titleZh = document.querySelector('#modalTitle .lang-text[data-lang="zh"]');
+                
+                if (titleEn) titleEn.textContent = imageMap[type].title.en;
+                if (titleZh) titleZh.textContent = imageMap[type].title.zh;
+                
+                // 显示模态框
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // 防止背景滚动
+                
+                // 优化图片加载
+                if (imageCache.has(imageSrc)) {
+                    // 使用缓存的图片
+                    modalImage.src = imageSrc;
+                    modalImage.style.display = 'block';
+                    imageLoader.classList.add('hidden');
+                } else {
+                    // 显示加载指示器
+                    modalImage.style.display = 'none';
+                    imageLoader.classList.remove('hidden');
+                    
+                    // 加载图片
+                    const img = new Image();
+                    img.onload = () => {
+                        imageCache.set(imageSrc, img);
+                        modalImage.src = imageSrc;
+                        modalImage.style.display = 'block';
+                        imageLoader.classList.add('hidden');
+                    };
+                    img.onerror = () => {
+                        imageLoader.classList.add('hidden');
+                        console.error(`Failed to load image: ${imageSrc}`);
+                    };
+                    img.src = imageSrc;
+                }
+            }
+        }
+
+        // 关闭提示模态框
+        function closeHintModal() {
+            const modal = document.getElementById('hintModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // 恢复滚动
+        }
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeHintModal();
+            }
+        });
+        
+        // 页面加载完成后预加载图片
+        document.addEventListener('DOMContentLoaded', function() {
+            // 延迟1秒后开始预加载，避免阻塞关键资源
+            setTimeout(() => {
+                preloadHintImages();
+            }, 1000);
+        });
+    </script>
+
+    <!-- 查询页面（初始隐藏） -->
+    <div id="query-page" class="hidden container mx-auto px-4 max-w-4xl">
+        <div class="card-apple p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">
+                    <span class="lang-text" data-lang="en">Query VPP Authorization</span>
+                    <span class="lang-text" data-lang="zh">查询VPP授权书</span>
+                </h2>
+                <button id="back-btn" class="btn-outline-black px-4 py-2 flex items-center gap-2">
+                    <i class="fa fa-arrow-left"></i>
+                    <span class="lang-text" data-lang="en">Back</span>
+                    <span class="lang-text" data-lang="zh">返回</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <!-- Email查询 -->
+                <div class="space-y-2">
+                    <label for="query-email" class="label-apple">
+                        <span class="lang-text" data-lang="en">Email</span>
+                        <span class="lang-text" data-lang="zh">邮箱</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="query-email" name="query-email" 
+                               class="input-apple" 
+                               data-placeholder-en="Enter email address"
+                               data-placeholder-zh="请输入邮箱地址"
+                               placeholder="Enter email address">
+                    </div>
+                </div>
+                
+                <!-- Mobile查询 -->
+                <div class="space-y-2">
+                    <label for="query-mobile" class="label-apple">
+                        <span class="lang-text" data-lang="en">Mobile</span>
+                        <span class="lang-text" data-lang="zh">手机号</span>
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="query-mobile" name="query-mobile" 
+                               class="input-apple" 
+                               data-placeholder-en="Enter mobile number"
+                               data-placeholder-zh="请输入手机号码"
+                               placeholder="Enter mobile number">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 查询按钮（底部居中） -->
+            <div class="pt-6">
+                <button id="do-query-btn" class="btn-black w-full flex justify-center items-center gap-3">
+                    <i class="fa fa-search"></i>
+                    <span class="lang-text" data-lang="en">Search</span>
+                    <span class="lang-text" data-lang="zh">查询</span>
+                </button>
+            </div>
+            
+            <!-- 查询成功提示 -->
+            <div id="query-success-message" class="hidden mt-6 p-4 bg-success/10 border border-success/30 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-success/20 rounded-full flex items-center justify-center">
+                        <i class="fa fa-check text-success text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-success">
+                            <span class="lang-text" data-lang="en">Query Successful</span>
+                            <span class="lang-text" data-lang="zh">查询成功</span>
+                        </p>
+                        <p class="text-sm text-tertiary mt-1">
+                            <span class="lang-text" data-lang="en">Found authorization information</span>
+                            <span class="lang-text" data-lang="zh">已找到相关授权信息</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 查询结果区域 -->
+            <div id="query-result" class="hidden mt-4">
+                <div id="query-result-content" class="space-y-4"></div>
+            </div>
+            
+            <!-- 无数据提示 -->
+            <div id="no-data-message" class="hidden mt-6 p-4 bg-danger/10 border border-danger/30 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-danger/20 rounded-full flex items-center justify-center">
+                        <i class="fa fa-times text-danger text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-danger">
+                            <span class="lang-text" data-lang="en">Query Failed</span>
+                            <span class="lang-text" data-lang="zh">查询失败</span>
+                        </p>
+                        <p class="text-sm text-tertiary mt-1">
+                            <span class="lang-text" data-lang="en">No authorization information found</span>
+                            <span class="lang-text" data-lang="zh">暂未查询到该客户授权信息</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提交成功页面（初始隐藏） -->
+    <div id="submission-success-page" class="hidden container mx-auto px-4 max-w-4xl">
+        <div class="card-apple p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">
+                    <span class="lang-text" data-lang="en">Authorization Details</span>
+                    <span class="lang-text" data-lang="zh">授权详情</span>
+                </h2>
+            </div>
+            
+            <div id="submission-detail-content" class="space-y-6">
+                <!-- 详情内容将动态生成 -->
+            </div>
+            
+            <!-- 编辑按钮 -->
+            <div class="flex justify-center mt-8 pt-6 border-t border-gray-200">
+                <button id="edit-submission-btn" class="bg-secondary text-white font-medium py-2.5 px-8 rounded-full shadow-sm transition-all duration-200 hover:bg-secondary/90 active:bg-secondary/80 flex items-center gap-2">
+                    <i class="fa fa-pencil"></i>
+                    <span class="lang-text" data-lang="en">Edit Information</span>
+                    <span class="lang-text" data-lang="zh">修改信息</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查询详情页面（初始隐藏） -->
+    <div id="query-detail-page" class="hidden container mx-auto px-4 max-w-4xl">
+        <div class="card-apple p-6 md:p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">
+                    <span class="lang-text" data-lang="en">Authorization Details</span>
+                    <span class="lang-text" data-lang="zh">授权详情</span>
+                </h2>
+                <button id="detail-back-btn" class="btn-outline-black px-4 py-2 flex items-center gap-2">
+                    <i class="fa fa-arrow-left"></i>
+                    <span class="lang-text" data-lang="en">Back</span>
+                    <span class="lang-text" data-lang="zh">返回</span>
+                </button>
+            </div>
+            
+            <div id="detail-content" class="space-y-6">
+                <!-- 详情内容将动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="bg-white py-6 mt-auto border-t border-border no-print">
+        <div class="container mx-auto px-4 text-center text-secondary text-sm">
+            <p>&copy; 2023 <span class="lang-text" data-lang="en">VPP Authorization System All Rights Reserved</span><span class="lang-text" data-lang="zh">VPP 授权管理系统 版权所有</span></p>
+        </div>
+    </footer>
+
+    <!-- 图片预览模态框 -->
+    <div id="hintModal" class="modal-overlay hidden" onclick="closeHintModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modalTitle" class="modal-title">
+                    <span class="lang-text" data-lang="en">Preview Image</span>
+                    <span class="lang-text" data-lang="zh">预览图片</span>
+                </h3>
+                <button class="modal-close-btn" onclick="closeHintModal()" title="关闭">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalImageContainer" class="relative">
+                    <div id="imageLoader" class="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-lg hidden">
+                        <div class="flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                            <span class="text-sm text-gray-600">
+                                <span class="lang-text" data-lang="en">Loading...</span>
+                                <span class="lang-text" data-lang="zh">加载中...</span>
+                            </span>
+                        </div>
+                    </div>
+                    <img id="modalImage" src="" alt="预览图片" class="modal-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .hint-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        
+        .hint-icon:hover {
+            background-color: #F3F4F6;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.hidden {
+            display: none;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            margin: 0;
+        }
+        
+        .modal-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .modal-close-btn:hover {
+            background-color: #F3F4F6;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 70vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 640px) {
+            .modal-container {
+                margin: 16px;
+                max-width: calc(100vw - 32px);
+            }
+            
+            .modal-body {
+                padding: 16px;
+            }
+            
+            .modal-image {
+                max-height: 60vh;
+            }
+        }
+    </style>
+
+</body>
+</html>
