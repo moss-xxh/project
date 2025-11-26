@@ -724,6 +724,8 @@
                 restore_vpp_message: 'Are you sure you want to restore this user to VPP plan?',
                 restore_vpp_warning: 'The user will rejoin the VPP plan after restoration.',
                 confirm_restore: 'Confirm Restore',
+                restore_to_unauthorized: 'Restore to Unauthorized',
+                restore_to_unauthorized_success: 'Successfully restored to unauthorized',
                 save: 'Save',
                 delete: 'Delete',
                 delete_confirm_title: 'Confirm Delete',
@@ -822,6 +824,8 @@
                 restore_vpp_message: '您确定要将此用户恢复到VPP计划吗？',
                 restore_vpp_warning: '恢复后用户将重新加入VPP计划。',
                 confirm_restore: '确认恢复',
+                restore_to_unauthorized: '恢复到未授权',
+                restore_to_unauthorized_success: '已成功恢复到未授权',
                 save: '保存',
                 delete: '删除',
                 delete_confirm_title: '确认删除',
@@ -837,15 +841,8 @@
             }
         };
 
-        // 当前语言 - 强制默认为英文，忽略localStorage
-        let currentLang = 'en';
-        // 立即清除任何语言设置，确保始终使用英文
-        try {
-            localStorage.clear(); // 清除所有localStorage数据
-            console.log('localStorage cleared to ensure English language');
-        } catch (e) {
-            console.log('Cannot clear localStorage:', e);
-        }
+        // 当前语言 - 从localStorage读取，默认为英文
+        let currentLang = localStorage.getItem('language') || 'en';
 
         // 模拟数据
         let mockData = [];
@@ -1124,18 +1121,20 @@
                     ` : ''}
                     <td class="px-4 py-3" onclick="event.stopPropagation()">
                         <div class="flex gap-2 items-center">
-                            ${currentTab !== 'exited' ? `
+                            ${currentTab !== 'exited' && currentTab !== 'rejected' ? `
                             <button onclick="showDetailsDrawer(${item.id})" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg shadow-sm hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-all duration-200">
                                 <i class="fa fa-edit"></i>
                             </button>
+                            ` : ''}
+                            ${currentTab !== 'exited' ? `
                             <button onclick="viewDetail(${item.id})" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium bg-gray-600 text-white rounded-lg shadow-sm hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 transition-all duration-200">
                                 <i class="fa fa-eye"></i>
                             </button>
                             ` : ''}
                             ${currentTab === 'rejected' ?
-                                `<button onclick="performDetection(${item.id})" class="px-3 py-1.5 text-xs bg-black text-white rounded-lg hover:bg-black/90 transition-all duration-200">
-                                    ${currentLang === 'zh' ? '<i class="fa fa-check mr-1"></i>' : ''}
-                                    ${translations[currentLang].detect || '检测'}
+                                `<button onclick="restoreToUnauthorized(${item.id})" class="px-3 py-1.5 text-xs bg-warning text-white rounded-lg hover:bg-warning/90 transition-all duration-200">
+                                    ${currentLang === 'zh' ? '<i class="fa fa-undo mr-1"></i>' : ''}
+                                    ${translations[currentLang].restore_to_unauthorized || '恢复到未授权'}
                                 </button>
                                 <button onclick="showDeleteModal(${item.id})" class="px-3 py-1 text-xs bg-danger text-white rounded-lg hover:bg-danger/90 transition-colors">
                                     ${currentLang === 'zh' ? '<i class="fa fa-trash mr-1"></i>' : ''}
@@ -2385,7 +2384,33 @@
                 }
             }, isFromBatch ? 500 : 1500); // 批量检测时更快
         }
-        
+
+        // 恢复到未授权
+        window.restoreToUnauthorized = function(id) {
+            showSuccessToast(currentLang === 'zh' ? '正在恢复...' : 'Restoring...', 'black');
+
+            setTimeout(() => {
+                const rejectedIndex = rejectedUsers.findIndex(d => d.id === id);
+                if (rejectedIndex !== -1) {
+                    // 从已驳回列表移除
+                    const restoredItem = rejectedUsers.splice(rejectedIndex, 1)[0];
+                    // 恢复到mockData，并更新为未授权状态
+                    restoredItem.status = 'inactive';
+                    restoredItem.isRejected = false;
+                    delete restoredItem.rejectedTime;
+                    delete restoredItem.rejectionReason;
+                    mockData.push(restoredItem);
+                    // 更新localStorage
+                    localStorage.setItem('rejectedUsers', JSON.stringify(rejectedUsers));
+
+                    showSuccessToast(translations[currentLang].restore_to_unauthorized_success || '已成功恢复到未授权');
+                    updateStats();
+                    renderTable();
+                    updateTabCounts();
+                }
+            }, 1000);
+        }
+
         // 批量检测 - 已移除
         // window.performBatchDetection = function() {
         //     // 根据当前tab选择不同的项目
