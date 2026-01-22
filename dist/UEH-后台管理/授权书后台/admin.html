@@ -222,7 +222,7 @@
                     </a>
                     <a href="#" id="org-management-link" class="nav-link flex items-center gap-2 px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" onclick="showOrgManagement(event)">
                         <i class="fa fa-users"></i>
-                        <span data-i18n="org_management">组织权限管理</span>
+                        <span data-i18n="org_management">组织管理</span>
                     </a>
                 </nav>
             </div>
@@ -461,12 +461,12 @@
             </div>
         </div>
 
-        <!-- 组织权限管理页面 -->
+        <!-- 组织管理页面 -->
         <div id="org-page" class="hidden">
             <!-- 页面标题 -->
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-2xl font-bold text-secondary" data-i18n="org_management">组织权限管理</h2>
+                    <h2 class="text-2xl font-bold text-secondary" data-i18n="org_management">组织管理</h2>
                     <p class="text-tertiary text-sm mt-1" data-i18n="org_management_desc">管理系统用户的账号和权限</p>
                 </div>
                 <button onclick="showAddUserModal()" class="btn-black px-6">
@@ -927,8 +927,8 @@
                 guidance_title: 'Operation Guidance',
                 guidance_step1: 'Open Solar Touch(System) and log in',
                 guidance_step2: 'Add device according to the following image',
-                // 组织权限管理
-                org_management: 'Organization Management',
+                // 组织管理
+                org_management: 'Organization',
                 org_management_desc: 'Manage system user accounts and permissions',
                 add_user: 'Add User',
                 edit_user: 'Edit User',
@@ -1050,8 +1050,8 @@
                 guidance_title: '操作指引',
                 guidance_step1: '打开Solar Touch(System)并登录',
                 guidance_step2: '根据下图添加设备',
-                // 组织权限管理
-                org_management: '组织权限管理',
+                // 组织管理
+                org_management: '组织管理',
                 org_management_desc: '管理系统用户的账号和权限',
                 add_user: '添加用户',
                 edit_user: '编辑用户',
@@ -2952,7 +2952,7 @@
         window.switchTab = switchTab;
         window.restoreToVPP = restoreToVPP;
 
-        // ==================== 组织权限管理模块 ====================
+        // ==================== 组织管理模块 ====================
 
         // 用户数据存储
         let userData = JSON.parse(localStorage.getItem('orgUsers') || '[]');
@@ -3295,7 +3295,7 @@
         window.nextUserPage = nextUserPage;
         window.toggleUserPassword = toggleUserPassword;
 
-        // ==================== 组织权限管理模块结束 ====================
+        // ==================== 组织管理模块结束 ====================
 
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', init);
