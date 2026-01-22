@@ -216,9 +216,13 @@
 
                 <!-- 导航菜单 -->
                 <nav class="hidden md:flex items-center gap-1">
-                    <a href="#" id="auth-management-link" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-colors" onclick="showMainPage(event)">
+                    <a href="#" id="auth-management-link" class="nav-link flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90 transition-colors" onclick="showAuthManagement(event)">
                         <i class="fa fa-shield"></i>
                         <span data-i18n="auth_management">授权管理</span>
+                    </a>
+                    <a href="#" id="org-management-link" class="nav-link flex items-center gap-2 px-4 py-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" onclick="showOrgManagement(event)">
+                        <i class="fa fa-users"></i>
+                        <span data-i18n="org_management">组织权限管理</span>
                     </a>
                 </nav>
             </div>
@@ -246,6 +250,8 @@
 
     <!-- 主内容 -->
     <main class="p-6 w-full">
+        <!-- 授权管理页面 -->
+        <div id="auth-page">
             <!-- 统计卡片 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <!-- 总用户统计 -->
@@ -453,7 +459,190 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- 组织权限管理页面 -->
+        <div id="org-page" class="hidden">
+            <!-- 页面标题 -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-secondary" data-i18n="org_management">组织权限管理</h2>
+                    <p class="text-tertiary text-sm mt-1" data-i18n="org_management_desc">管理系统用户的账号和权限</p>
+                </div>
+                <button onclick="showAddUserModal()" class="btn-black px-6">
+                    <i class="fa fa-plus mr-2"></i>
+                    <span data-i18n="add_user">添加用户</span>
+                </button>
+            </div>
+
+            <!-- 搜索区域 -->
+            <div class="card-apple p-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm text-tertiary whitespace-nowrap min-w-[50px]" data-i18n="nickname_label">昵称</label>
+                        <input type="text" id="user-nickname-search" class="input-apple flex-1" placeholder="">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm text-tertiary whitespace-nowrap min-w-[50px]" data-i18n="account_label">账号</label>
+                        <input type="text" id="user-account-search" class="input-apple flex-1" placeholder="">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-sm text-tertiary whitespace-nowrap min-w-[50px]" data-i18n="status_label">状态</label>
+                        <select id="user-status-search" class="input-apple flex-1">
+                            <option value="" data-i18n="all_status">全部</option>
+                            <option value="enabled" data-i18n="enabled">启用</option>
+                            <option value="disabled" data-i18n="disabled">禁用</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-end gap-3">
+                        <button onclick="resetUserSearch()" class="btn-outline-black px-4">
+                            <i class="fa fa-refresh mr-2"></i>
+                            <span data-i18n="reset_btn">重置</span>
+                        </button>
+                        <button onclick="searchUsers()" class="btn-black px-4">
+                            <i class="fa fa-search mr-2"></i>
+                            <span data-i18n="search_btn">查询</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户列表表格 -->
+            <div class="card-apple">
+                <div class="p-4 border-b border-border">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold" data-i18n="user_list">用户列表</h3>
+                        <span class="text-sm text-tertiary">
+                            <span data-i18n="total">共</span>
+                            <span id="user-total-count">0</span>
+                            <span data-i18n="users_unit">人</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="w-full">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_nickname">昵称</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_user_account">账号</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_status">状态</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_create_time">创建时间</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_remarks">备注</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-tertiary" data-i18n="th_operations">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- 用户数据将通过JavaScript动态添加 -->
+                        </tbody>
+                    </table>
+                    <div id="user-empty-state" class="p-12 text-center hidden">
+                        <i class="fa fa-user-times text-6xl text-tertiary/30 mb-4"></i>
+                        <p class="text-tertiary" data-i18n="no_users">暂无用户数据</p>
+                    </div>
+                </div>
+                <!-- 分页 -->
+                <div class="p-4 border-t border-border flex justify-between items-center">
+                    <div class="text-sm text-tertiary">
+                        <span data-i18n="showing">显示</span> <span id="user-showing-range">0-0</span> <span data-i18n="of">共</span> <span id="user-total-records">0</span> <span data-i18n="records">条记录</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="user-prev-page" onclick="prevUserPage()" class="px-3 py-1 rounded-lg border border-border hover:bg-light transition-colors disabled:opacity-50">
+                            <i class="fa fa-chevron-left"></i>
+                        </button>
+                        <span class="px-3 py-1" id="user-page-info">1 / 1</span>
+                        <button id="user-next-page" onclick="nextUserPage()" class="px-3 py-1 rounded-lg border border-border hover:bg-light transition-colors disabled:opacity-50">
+                            <i class="fa fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
+
+    <!-- 添加/编辑用户模态框 -->
+    <div id="user-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
+            <div class="p-5 border-b border-border flex justify-between items-center">
+                <h3 class="text-lg font-semibold" id="user-modal-title" data-i18n="add_user">添加用户</h3>
+                <button onclick="closeUserModal()" class="text-tertiary hover:text-secondary transition-colors p-1">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="edit-user-id">
+                <div>
+                    <label class="label-apple" data-i18n="nickname_label">昵称</label>
+                    <input type="text" id="user-nickname" class="input-apple" placeholder="">
+                </div>
+                <div>
+                    <label class="label-apple" data-i18n="account_label">账号</label>
+                    <input type="text" id="user-account" class="input-apple" placeholder="">
+                </div>
+                <div>
+                    <label class="label-apple" data-i18n="password_label">密码</label>
+                    <div class="relative">
+                        <input type="password" id="user-password" class="input-apple pr-10" placeholder="">
+                        <button type="button" onclick="toggleUserPassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-tertiary hover:text-secondary">
+                            <i class="fa fa-eye" id="password-toggle-icon"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-tertiary mt-1" id="password-hint" data-i18n="password_hint">编辑时留空则不修改密码</p>
+                </div>
+                <div>
+                    <label class="label-apple" data-i18n="status_label">状态</label>
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="user-status" value="enabled" checked class="w-4 h-4">
+                            <span data-i18n="enabled">启用</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="user-status" value="disabled" class="w-4 h-4">
+                            <span data-i18n="disabled">禁用</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="label-apple" data-i18n="remarks_label">备注</label>
+                    <textarea id="user-remarks" rows="3" class="input-apple resize-none" placeholder=""></textarea>
+                </div>
+            </div>
+            <div class="p-5 border-t border-border flex justify-end gap-3">
+                <button onclick="closeUserModal()" class="px-4 py-2 rounded-lg border border-border hover:bg-light transition-colors">
+                    <span data-i18n="cancel">取消</span>
+                </button>
+                <button onclick="saveUser()" class="btn-black px-6">
+                    <i class="fa fa-check mr-2"></i>
+                    <span data-i18n="save">保存</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除用户确认模态框 -->
+    <div id="delete-user-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden">
+            <div class="p-5 border-b border-border">
+                <h3 class="text-lg font-semibold flex items-center">
+                    <i class="fa fa-exclamation-triangle text-danger mr-2"></i>
+                    <span data-i18n="delete_user_title">确认删除用户</span>
+                </h3>
+            </div>
+            <div class="p-5">
+                <p class="text-gray-700 mb-3" data-i18n="delete_user_message">您确定要删除这个用户吗？</p>
+                <p class="text-sm text-danger" data-i18n="delete_user_warning">此操作不可恢复。</p>
+                <input type="hidden" id="delete-user-id">
+            </div>
+            <div class="p-5 border-t border-border flex justify-end gap-3">
+                <button onclick="closeDeleteUserModal()" class="px-4 py-2 rounded-lg border border-border hover:bg-light transition-colors">
+                    <span data-i18n="cancel">取消</span>
+                </button>
+                <button onclick="confirmDeleteUser()" class="px-4 py-2 rounded-lg bg-danger text-white hover:bg-danger/90 transition-colors">
+                    <i class="fa fa-trash mr-2"></i>
+                    <span data-i18n="confirm_delete">确认删除</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- 详情模态框 -->
     <div id="detail-modal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden">
@@ -738,6 +927,29 @@
                 guidance_title: 'Operation Guidance',
                 guidance_step1: 'Open Solar Touch(System) and log in',
                 guidance_step2: 'Add device according to the following image',
+                // 组织权限管理
+                org_management: 'Organization Management',
+                org_management_desc: 'Manage system user accounts and permissions',
+                add_user: 'Add User',
+                edit_user: 'Edit User',
+                user_list: 'User List',
+                total: 'Total',
+                users_unit: 'users',
+                nickname_label: 'Nickname',
+                password_label: 'Password',
+                status_label: 'Status',
+                remarks_label: 'Remarks',
+                enabled: 'Enabled',
+                disabled: 'Disabled',
+                th_nickname: 'Nickname',
+                th_user_account: 'Account',
+                th_status: 'Status',
+                th_create_time: 'Created Time',
+                no_users: 'No users found',
+                password_hint: 'Leave blank to keep current password',
+                delete_user_title: 'Confirm Delete User',
+                delete_user_message: 'Are you sure you want to delete this user?',
+                delete_user_warning: 'This action cannot be undone.',
             },
             zh: {
                 total_users: '总用户',
@@ -838,6 +1050,29 @@
                 guidance_title: '操作指引',
                 guidance_step1: '打开Solar Touch(System)并登录',
                 guidance_step2: '根据下图添加设备',
+                // 组织权限管理
+                org_management: '组织权限管理',
+                org_management_desc: '管理系统用户的账号和权限',
+                add_user: '添加用户',
+                edit_user: '编辑用户',
+                user_list: '用户列表',
+                total: '共',
+                users_unit: '人',
+                nickname_label: '昵称',
+                password_label: '密码',
+                status_label: '状态',
+                remarks_label: '备注',
+                enabled: '启用',
+                disabled: '禁用',
+                th_nickname: '昵称',
+                th_user_account: '账号',
+                th_status: '状态',
+                th_create_time: '创建时间',
+                no_users: '暂无用户数据',
+                password_hint: '编辑时留空则不修改密码',
+                delete_user_title: '确认删除用户',
+                delete_user_message: '您确定要删除这个用户吗？',
+                delete_user_warning: '此操作不可恢复。',
             }
         };
 
@@ -2716,7 +2951,352 @@
         // 导出函数到全局
         window.switchTab = switchTab;
         window.restoreToVPP = restoreToVPP;
-        
+
+        // ==================== 组织权限管理模块 ====================
+
+        // 用户数据存储
+        let userData = JSON.parse(localStorage.getItem('orgUsers') || '[]');
+        let userCurrentPage = 1;
+        const userPageSize = 10;
+        let filteredUserData = [];
+
+        // 初始化默认管理员用户（如果没有数据）
+        if (userData.length === 0) {
+            userData = [
+                {
+                    id: 1,
+                    nickname: 'Admin',
+                    account: 'admin',
+                    password: 'admin123',
+                    status: 'enabled',
+                    remarks: '系统管理员',
+                    createTime: new Date().toLocaleString()
+                }
+            ];
+            localStorage.setItem('orgUsers', JSON.stringify(userData));
+        }
+
+        // 页面切换函数
+        function showAuthManagement(event) {
+            if (event) event.preventDefault();
+            document.getElementById('auth-page').classList.remove('hidden');
+            document.getElementById('org-page').classList.add('hidden');
+
+            // 更新导航栏样式
+            document.getElementById('auth-management-link').classList.add('bg-black', 'text-white');
+            document.getElementById('auth-management-link').classList.remove('text-gray-600', 'hover:bg-gray-100');
+            document.getElementById('org-management-link').classList.remove('bg-black', 'text-white');
+            document.getElementById('org-management-link').classList.add('text-gray-600', 'hover:bg-gray-100');
+        }
+
+        function showOrgManagement(event) {
+            if (event) event.preventDefault();
+            document.getElementById('auth-page').classList.add('hidden');
+            document.getElementById('org-page').classList.remove('hidden');
+
+            // 更新导航栏样式
+            document.getElementById('org-management-link').classList.add('bg-black', 'text-white');
+            document.getElementById('org-management-link').classList.remove('text-gray-600', 'hover:bg-gray-100');
+            document.getElementById('auth-management-link').classList.remove('bg-black', 'text-white');
+            document.getElementById('auth-management-link').classList.add('text-gray-600', 'hover:bg-gray-100');
+
+            // 渲染用户表格
+            renderUserTable();
+        }
+
+        // 渲染用户表格
+        function renderUserTable() {
+            const tbody = document.getElementById('user-table-body');
+            const emptyState = document.getElementById('user-empty-state');
+
+            // 应用搜索过滤
+            filteredUserData = userData.filter(user => {
+                const nicknameSearch = document.getElementById('user-nickname-search').value.toLowerCase();
+                const accountSearch = document.getElementById('user-account-search').value.toLowerCase();
+                const statusSearch = document.getElementById('user-status-search').value;
+
+                const matchNickname = !nicknameSearch || user.nickname.toLowerCase().includes(nicknameSearch);
+                const matchAccount = !accountSearch || user.account.toLowerCase().includes(accountSearch);
+                const matchStatus = !statusSearch || user.status === statusSearch;
+
+                return matchNickname && matchAccount && matchStatus;
+            });
+
+            // 更新统计
+            document.getElementById('user-total-count').textContent = filteredUserData.length;
+            document.getElementById('user-total-records').textContent = filteredUserData.length;
+
+            // 分页计算
+            const totalPages = Math.ceil(filteredUserData.length / userPageSize) || 1;
+            if (userCurrentPage > totalPages) userCurrentPage = totalPages;
+
+            const startIndex = (userCurrentPage - 1) * userPageSize;
+            const endIndex = Math.min(startIndex + userPageSize, filteredUserData.length);
+            const pageData = filteredUserData.slice(startIndex, endIndex);
+
+            // 更新分页信息
+            document.getElementById('user-showing-range').textContent = filteredUserData.length > 0
+                ? `${startIndex + 1}-${endIndex}`
+                : '0-0';
+            document.getElementById('user-page-info').textContent = `${userCurrentPage} / ${totalPages}`;
+
+            // 更新分页按钮状态
+            document.getElementById('user-prev-page').disabled = userCurrentPage <= 1;
+            document.getElementById('user-next-page').disabled = userCurrentPage >= totalPages;
+
+            if (filteredUserData.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = pageData.map(user => `
+                <tr class="border-b border-border hover:bg-light/50 transition-colors">
+                    <td class="px-4 py-3 text-sm">${escapeHtml(user.nickname)}</td>
+                    <td class="px-4 py-3 text-sm font-medium">${escapeHtml(user.account)}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${
+                            user.status === 'enabled'
+                                ? 'bg-success/10 text-success'
+                                : 'bg-danger/10 text-danger'
+                        }">
+                            ${user.status === 'enabled'
+                                ? (currentLang === 'zh' ? '启用' : 'Enabled')
+                                : (currentLang === 'zh' ? '禁用' : 'Disabled')}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-tertiary">${user.createTime}</td>
+                    <td class="px-4 py-3 text-sm text-tertiary">${escapeHtml(user.remarks || '-')}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex gap-2">
+                            <button onclick="editUser(${user.id})" class="text-primary hover:text-primary/80 text-sm">
+                                <i class="fa fa-edit mr-1"></i>${currentLang === 'zh' ? '编辑' : 'Edit'}
+                            </button>
+                            <button onclick="showDeleteUserModal(${user.id})" class="text-danger hover:text-danger/80 text-sm">
+                                <i class="fa fa-trash mr-1"></i>${currentLang === 'zh' ? '删除' : 'Delete'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 搜索用户
+        function searchUsers() {
+            userCurrentPage = 1;
+            renderUserTable();
+        }
+
+        // 重置搜索
+        function resetUserSearch() {
+            document.getElementById('user-nickname-search').value = '';
+            document.getElementById('user-account-search').value = '';
+            document.getElementById('user-status-search').value = '';
+            userCurrentPage = 1;
+            renderUserTable();
+        }
+
+        // 分页函数
+        function prevUserPage() {
+            if (userCurrentPage > 1) {
+                userCurrentPage--;
+                renderUserTable();
+            }
+        }
+
+        function nextUserPage() {
+            const totalPages = Math.ceil(filteredUserData.length / userPageSize) || 1;
+            if (userCurrentPage < totalPages) {
+                userCurrentPage++;
+                renderUserTable();
+            }
+        }
+
+        // 显示添加用户模态框
+        function showAddUserModal() {
+            document.getElementById('edit-user-id').value = '';
+            document.getElementById('user-nickname').value = '';
+            document.getElementById('user-account').value = '';
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-remarks').value = '';
+            document.querySelector('input[name="user-status"][value="enabled"]').checked = true;
+
+            // 添加模式：账号可编辑
+            const accountInput = document.getElementById('user-account');
+            accountInput.readOnly = false;
+            accountInput.classList.remove('bg-gray-100', 'cursor-not-allowed', 'text-gray-500');
+
+            document.getElementById('user-modal-title').textContent = currentLang === 'zh' ? '添加用户' : 'Add User';
+            document.getElementById('password-hint').classList.add('hidden');
+            document.getElementById('user-modal').classList.remove('hidden');
+        }
+
+        // 编辑用户
+        function editUser(id) {
+            const user = userData.find(u => u.id === id);
+            if (!user) return;
+
+            document.getElementById('edit-user-id').value = id;
+            document.getElementById('user-nickname').value = user.nickname;
+            document.getElementById('user-account').value = user.account;
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-remarks').value = user.remarks || '';
+            document.querySelector(`input[name="user-status"][value="${user.status}"]`).checked = true;
+
+            // 编辑模式：账号不可修改
+            const accountInput = document.getElementById('user-account');
+            accountInput.readOnly = true;
+            accountInput.classList.add('bg-gray-100', 'cursor-not-allowed', 'text-gray-500');
+
+            document.getElementById('user-modal-title').textContent = currentLang === 'zh' ? '编辑用户' : 'Edit User';
+            document.getElementById('password-hint').classList.remove('hidden');
+            document.getElementById('user-modal').classList.remove('hidden');
+        }
+
+        // 关闭用户模态框
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.add('hidden');
+        }
+
+        // 保存用户
+        function saveUser() {
+            const id = document.getElementById('edit-user-id').value;
+            const nickname = document.getElementById('user-nickname').value.trim();
+            const account = document.getElementById('user-account').value.trim();
+            const password = document.getElementById('user-password').value;
+            const remarks = document.getElementById('user-remarks').value.trim();
+            const status = document.querySelector('input[name="user-status"]:checked').value;
+
+            // 验证
+            if (!nickname) {
+                showSuccessToast(currentLang === 'zh' ? '请输入昵称' : 'Please enter nickname', 'error');
+                return;
+            }
+            if (!account) {
+                showSuccessToast(currentLang === 'zh' ? '请输入账号' : 'Please enter account', 'error');
+                return;
+            }
+
+            if (id) {
+                // 编辑模式
+                const index = userData.findIndex(u => u.id === parseInt(id));
+                if (index !== -1) {
+                    // 检查账号是否重复（排除自身）
+                    const duplicate = userData.find(u => u.account === account && u.id !== parseInt(id));
+                    if (duplicate) {
+                        showSuccessToast(currentLang === 'zh' ? '账号已存在' : 'Account already exists', 'error');
+                        return;
+                    }
+
+                    userData[index].nickname = nickname;
+                    userData[index].account = account;
+                    if (password) userData[index].password = password;
+                    userData[index].remarks = remarks;
+                    userData[index].status = status;
+                }
+            } else {
+                // 新增模式
+                if (!password) {
+                    showSuccessToast(currentLang === 'zh' ? '请输入密码' : 'Please enter password', 'error');
+                    return;
+                }
+
+                // 检查账号是否重复
+                const duplicate = userData.find(u => u.account === account);
+                if (duplicate) {
+                    showSuccessToast(currentLang === 'zh' ? '账号已存在' : 'Account already exists', 'error');
+                    return;
+                }
+
+                const newUser = {
+                    id: userData.length > 0 ? Math.max(...userData.map(u => u.id)) + 1 : 1,
+                    nickname,
+                    account,
+                    password,
+                    status,
+                    remarks,
+                    createTime: new Date().toLocaleString()
+                };
+                userData.push(newUser);
+            }
+
+            // 保存到 localStorage
+            localStorage.setItem('orgUsers', JSON.stringify(userData));
+
+            closeUserModal();
+            renderUserTable();
+            showSuccessToast(currentLang === 'zh' ? '保存成功' : 'Saved successfully');
+        }
+
+        // 显示删除用户确认模态框
+        function showDeleteUserModal(id) {
+            document.getElementById('delete-user-id').value = id;
+            document.getElementById('delete-user-modal').classList.remove('hidden');
+        }
+
+        // 关闭删除用户模态框
+        function closeDeleteUserModal() {
+            document.getElementById('delete-user-modal').classList.add('hidden');
+        }
+
+        // 确认删除用户
+        function confirmDeleteUser() {
+            const id = parseInt(document.getElementById('delete-user-id').value);
+            const index = userData.findIndex(u => u.id === id);
+
+            if (index !== -1) {
+                userData.splice(index, 1);
+                localStorage.setItem('orgUsers', JSON.stringify(userData));
+                closeDeleteUserModal();
+                renderUserTable();
+                showSuccessToast(currentLang === 'zh' ? '删除成功' : 'Deleted successfully');
+            }
+        }
+
+        // 切换密码显示
+        function toggleUserPassword() {
+            const passwordInput = document.getElementById('user-password');
+            const icon = document.getElementById('password-toggle-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // 导出组织管理函数到全局
+        window.showAuthManagement = showAuthManagement;
+        window.showOrgManagement = showOrgManagement;
+        window.showAddUserModal = showAddUserModal;
+        window.editUser = editUser;
+        window.closeUserModal = closeUserModal;
+        window.saveUser = saveUser;
+        window.showDeleteUserModal = showDeleteUserModal;
+        window.closeDeleteUserModal = closeDeleteUserModal;
+        window.confirmDeleteUser = confirmDeleteUser;
+        window.searchUsers = searchUsers;
+        window.resetUserSearch = resetUserSearch;
+        window.prevUserPage = prevUserPage;
+        window.nextUserPage = nextUserPage;
+        window.toggleUserPassword = toggleUserPassword;
+
+        // ==================== 组织权限管理模块结束 ====================
+
         // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', init);
     </script>
